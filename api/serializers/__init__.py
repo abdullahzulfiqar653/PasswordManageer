@@ -1,3 +1,4 @@
 from api.serializers.signup import UserSignUpSerializer
 from api.serializers.signin import UserSignInSerializer
 from api.serializers.password import PasswordCreateSerializer
+from api.serializers.password_rand import RandomPasswordCreateSerializer

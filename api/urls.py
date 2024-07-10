@@ -3,8 +3,9 @@ from rest_framework_simplejwt.views import TokenVerifyView
 from api.views import (
     UserSignUpView,
     UserSignInView,
-    PasswordRetrieveUpdateDeleteView,
     PasswordListCreateView,
+    RandomPasswordCreateView,
+    PasswordRetrieveUpdateDeleteView,
 )
 
 
@@ -16,6 +17,11 @@ urlpatterns = [
         "passwords/",
         PasswordListCreateView.as_view(),
         name="password-list-create",
+    ),
+    path(
+        "passwords/generate-random/",
+        RandomPasswordCreateView.as_view(),
+        name="generate-random",
     ),
     path(
         "passwords/<str:pk>/",
