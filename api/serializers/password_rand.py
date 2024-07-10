@@ -49,11 +49,10 @@ class RandomPasswordCreateSerializer(serializers.Serializer):
 
         if not character_sets:
             raise serializers.ValidationError("No valid character sets selected.")
-        print(validated_data)
-        password_length = validated_data["length"]
-        print(f"password_length: {password_length}")
+
         random_password = "".join(
-            random.choice("".join(character_sets)) for _ in range(password_length)
+            random.choice("".join(character_sets))
+            for _ in range(validated_data["length"])
         )
 
         return {"password": random_password}
