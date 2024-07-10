@@ -1,5 +1,4 @@
-from rest_framework import generics
-from rest_framework import permissions
+from rest_framework import generics, permissions, filters
 from api.models.password import Password
 from api.serializers.password import PasswordCreateSerializer
 
@@ -7,6 +6,8 @@ from api.serializers.password import PasswordCreateSerializer
 class PasswordListCreateView(generics.ListCreateAPIView):
     serializer_class = PasswordCreateSerializer
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'username', 'url', 'notes', 'emoji']
 
     def get_queryset(self):
         # Filter passwords by the current authenticated user
