@@ -1,7 +1,12 @@
 from api.views.signup import UserSignUpView
 from api.views.signin import UserSignInView
+from api.views.keypair import KeyPairListCreateView
+from api.views.recipient import RecipientListCreateView
+from api.views.encrypt_message import EncryptMessageView
+from api.views.decrypt_message import DecryptMessageView
+
 from api.views.password import (
     PasswordListCreateView,
-    PasswordRetrieveUpdateDeleteView,
     RandomPasswordCreateView,
+    PasswordRetrieveUpdateDeleteView,
 )
