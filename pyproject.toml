@@ -17,6 +17,7 @@ ipython = "^8.26.0"
 djangorestframework-simplejwt = "^5.3.1"
 shortuuid = "^1.0.13"
 drf-spectacular = "^0.27.2"
+cryptography = "^43.0.0"
 
 
 [build-system]
