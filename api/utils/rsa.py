@@ -3,18 +3,24 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives import serialization, hashes
 
 
-def generate_keypair():
+def generate_keypair(passphrase: bytes = None):
     private_key = rsa.generate_private_key(
         public_exponent=65537,
         key_size=4096,
     )
     public_key = private_key.public_key()
-
-    pem_private_key = private_key.private_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption(),
-    )
+    try:
+        pem_private_key = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=(
+                serialization.BestAvailableEncryption(passphrase)
+                if passphrase
+                else serialization.NoEncryption()
+            ),
+        )
+    except Exception as e:
+        print(e)
 
     pem_public_key = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
@@ -38,17 +44,25 @@ def encrypt_messages(message, public_keys_pem):
             ),
         )
         encrypted_messages.append(encrypted_message)
-
     return encrypted_messages
 
-def decrypt_message(encrypted_message, private_key_pem):
-    private_key = serialization.load_pem_private_key(private_key_pem, password=None)
-    decrypted_message = private_key.decrypt(
-        encrypted_message,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None,
-        ),
+
+def decrypt_message(encrypted_message_strings, private_key_pem, passphrase):
+    private_key = serialization.load_pem_private_key(
+        private_key_pem,
+        password=passphrase,
     )
-    return decrypted_message
+
+    for msg in encrypted_message_strings:
+        try:
+            decrypted_message = private_key.decrypt(
+                msg,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None,
+                ),
+            )
+            return decrypted_message
+        except:
+            pass

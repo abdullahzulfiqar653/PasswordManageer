@@ -38,5 +38,4 @@ class EncryptMessageSerializer(serializers.Serializer):
                 for recipient in Recipient.objects.filter(id__in=recipient_ids)
             ],
         )
-
-        return {"message": "".join([msg.hex() for msg in encrypted_messages])}
+        return {"message": "-".join([msg.hex() for msg in encrypted_messages])}
