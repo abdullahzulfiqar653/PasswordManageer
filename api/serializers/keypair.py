@@ -6,29 +6,42 @@ from api.models.keypair import KeyPair
 
 
 class KeyPairSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=False)
-
     class Meta:
         model = KeyPair
-        fields = ["id", "name", "email", "private_key", "public_key"]
+        fields = ["id", "name", "email", "passphrase", "private_key", "public_key"]
         read_only_fields = ["private_key", "public_key"]
+
+    def validate_name(self, name):
+        user = self.context.get("request").user
+        if KeyPair.objects.filter(user_id=user, name=name).exists():
+            raise serializers.ValidationError(
+                "An entry with this user and name already exists."
+            )
+        return name
 
     def create(self, validated_data):
         user = self.context["request"].user
 
+        email = validated_data.get("email")
+        # Convert passphrase to bytes if present, otherwise None
+        passphrase = validated_data.get("passphrase")
+        passphrase_bytes = passphrase.encode("utf-8") if passphrase else None
+
         name = (
-            f"pair_{secrets.token_hex(5)}"
+            f"pair_{secrets.token_hex(3)}"
             if not validated_data.get("name")
             else validated_data["name"]
         )
 
         # Generate key pairs
-        private_key, public_key = generate_keypair()
+        private_key, public_key = generate_keypair(passphrase_bytes)
 
         # Save the key pairs in the database
         key_pair = KeyPair.objects.create(
             user=user,
             name=name,
+            email=email,
+            passphrase=passphrase,
             private_key=private_key.decode("utf-8"),
             public_key=public_key.decode("utf-8"),
         )

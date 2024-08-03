@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 class KeyPair(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=255, null=True)
+    email = models.EmailField(null=True)
+    passphrase = models.CharField(max_length=64, null=True)
     private_key = models.TextField()
     public_key = models.TextField()
 
