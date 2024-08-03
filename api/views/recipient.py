@@ -12,10 +12,10 @@ class RecipientListCreateView(generics.ListCreateAPIView):
         return Recipient.objects.filter(user=self.request.user)
 
 
-# class PasswordRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-#     serializer_class = PasswordCreateSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+class RecipientRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = RecipientSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-#     def get_queryset(self):
-#         # Filter passwords by the current authenticated user
-#         return Password.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        # Filter Recipients by the current authenticated user
+        return Recipient.objects.filter(user=self.request.user)
