@@ -5,10 +5,9 @@ from api.utils import generate_passphrase, hash_passphrase
 
 class UserSignUpSerializer(serializers.Serializer):
     pass_phrase = serializers.CharField(read_only=True)
-    phrase_length = serializers.IntegerField(write_only=True, default=6)
 
     def create(self, validated_data):
-        passphrase = generate_passphrase(validated_data["phrase_length"])
+        passphrase = generate_passphrase()
         hashed_passphrase = hash_passphrase(passphrase)
         while User.objects.filter(username=passphrase).exists():
             passphrase = generate_passphrase()
