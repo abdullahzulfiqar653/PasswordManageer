@@ -12,9 +12,7 @@ def get_passphrase(passphrase, keypair):
 class DecryptMessageSerializer(serializers.Serializer):
     message = serializers.CharField()
     keypair_id = serializers.CharField(write_only=True)
-    passphrase = serializers.CharField(
-        max_length=64, write_only=True, allow_blank=True, allow_null=True
-    )
+    passphrase = serializers.CharField(max_length=64, write_only=True, allow_null=True)
 
     def validate(self, data):
         keypair_id = data.get("keypair_id")

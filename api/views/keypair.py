@@ -14,10 +14,10 @@ class KeyPairListCreateView(generics.ListCreateAPIView):
         return KeyPair.objects.filter(user=self.request.user)
 
 
-# class PasswordRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-#     serializer_class = PasswordCreateSerializer
-#     permission_classes = [permissions.IsAuthenticated]
+class KeyPairRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = KeyPairSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-#     def get_queryset(self):
-#         # Filter passwords by the current authenticated user
-#         return Password.objects.filter(user=self.request.user)
+    def get_queryset(self):
+        # Filter Keypairs by the current authenticated user
+        return KeyPair.objects.filter(user=self.request.user)

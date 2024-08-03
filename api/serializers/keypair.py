@@ -6,6 +6,14 @@ from api.models.keypair import KeyPair
 
 
 class KeyPairSerializer(serializers.ModelSerializer):
+    passphrase = serializers.CharField(
+        write_only=True,
+        required=False,
+        min_length=8,
+        allow_null=True,
+        max_length=64,
+    )
+
     class Meta:
         model = KeyPair
         fields = ["id", "name", "email", "passphrase", "private_key", "public_key"]
@@ -46,3 +54,7 @@ class KeyPairSerializer(serializers.ModelSerializer):
             public_key=public_key.decode("utf-8"),
         )
         return key_pair
+
+    def update(self, instance, validated_data):
+        validated_data.pop("passphrase", None)
+        return super().update(instance, validated_data)

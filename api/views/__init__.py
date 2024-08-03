@@ -4,6 +4,7 @@ from api.views.keypair import KeyPairListCreateView
 from api.views.recipient import RecipientListCreateView
 from api.views.encrypt_message import EncryptMessageView
 from api.views.decrypt_message import DecryptMessageView
+from api.views.keypair import KeyPairRetrieveUpdateDeleteView
 from api.views.recipient import RecipientRetrieveUpdateDeleteView
 
 from api.views.password import (
@@ -23,4 +24,5 @@ __all__ = [
     "PasswordListCreateView",
     "RandomPasswordCreateView",
     "PasswordRetrieveUpdateDeleteView",
+    "KeyPairRetrieveUpdateDeleteView",
 ]

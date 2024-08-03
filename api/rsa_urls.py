@@ -8,6 +8,7 @@ from api.views import (
     DecryptMessageView,
     KeyPairListCreateView,
     RecipientListCreateView,
+    KeyPairRetrieveUpdateDeleteView,
     RecipientRetrieveUpdateDeleteView,
 )
 
@@ -19,6 +20,11 @@ urlpatterns = [
         "keypairs/",
         KeyPairListCreateView.as_view(),
         name="keypairs-list-create",
+    ),
+    path(
+        "keypairs/<str:pk>",
+        KeyPairRetrieveUpdateDeleteView.as_view(),
+        name="keypair-retrieve-update-delete",
     ),
     # =====================================================
     # Recipient
