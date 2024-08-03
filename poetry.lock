@@ -284,16 +284,6 @@ offline = ["drf-spectacular-sidecar"]
 sidecar = ["drf-spectacular-sidecar"]
 
 [[package]]
-name = "english-words"
-version = "2.0.1"
-description = "Generate sets of english words by combining different word lists"
-optional = false
-python-versions = "*"
-files = [
-    {file = "english-words-2.0.1.tar.gz", hash = "sha256:a4105c57493bb757a3d8973fcf8e1dc05e7ca09c836dff467c3fb445f84bc43d"},
-]
-
-[[package]]
 name = "executing"
 version = "2.0.1"
 description = "Get the currently executing AST node of a frame, and other information"
@@ -834,4 +824,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "1d387771cd1af5b8144baa51b9ef6c46b54b8b869b7e4d20af4d3b9e31dd9ccb"
+content-hash = "9d901af4af530ae2517769d9cdd441936e466240d21fcb9753e5d2ae44807550"
