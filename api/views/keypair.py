@@ -1,6 +1,7 @@
 from rest_framework import generics, permissions, filters
 from api.models.keypair import KeyPair
-from api.serializers.keypair import KeyPairSerializer
+from rest_framework.permissions import AllowAny
+from api.serializers.keypair import KeyPairSerializer, MainKeyPairSerializer
 
 
 class KeyPairListCreateView(generics.ListCreateAPIView):
@@ -21,3 +22,8 @@ class KeyPairRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         # Filter Keypairs by the current authenticated user
         return KeyPair.objects.filter(user=self.request.user)
+
+
+class MainKeyPairCreateView(generics.CreateAPIView):
+    permission_classes = [AllowAny]
+    serializer_class = MainKeyPairSerializer

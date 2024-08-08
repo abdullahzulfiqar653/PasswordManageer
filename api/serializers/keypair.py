@@ -1,8 +1,9 @@
 import secrets
 from rest_framework import serializers
-
 from api.utils import generate_keypair
 from api.models.keypair import KeyPair
+from django.contrib.auth.models import User
+from api.utils import hash_passphrase
 
 
 class KeyPairSerializer(serializers.ModelSerializer):
@@ -58,3 +59,44 @@ class KeyPairSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         validated_data.pop("passphrase", None)
         return super().update(instance, validated_data)
+
+
+class MainKeyPairSerializer(serializers.Serializer):
+    """
+    This Serializer is used to create a main keypair for every user in this
+    application or for the users of other applicatiuons as well.
+    """
+
+    private_key = serializers.CharField(read_only=True)
+    public_key = serializers.CharField(read_only=True)
+    pass_phrase = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        pass_phrase = attrs.get("pass_phrase")
+        if User.objects.filter(username=pass_phrase).exists():
+            raise serializers.ValidationError(
+                {"msg": "User already have main keypair."}
+            )
+        return super().validate(attrs)
+
+    def create(self, validated_data):
+        pass_phrase = validated_data["pass_phrase"]
+        hash = hash_passphrase(pass_phrase)
+        user, _ = User.objects.get_or_create(username=pass_phrase)
+        user.set_password(hash)
+        user.save()
+        # Generate key pairs
+        private_key, public_key = generate_keypair()
+
+        # Save the key pairs in the database
+        KeyPair.objects.create(
+            user=user,
+            is_main=True,
+            name=f"main_{secrets.token_hex(3)}",
+            public_key=public_key.decode("utf-8"),
+            private_key=private_key.decode("utf-8"),
+        )
+        return {
+            "public_key": public_key.decode("utf-8"),
+            "private_key": private_key.decode("utf-8"),
+        }

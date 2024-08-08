@@ -6,12 +6,14 @@ from api.serializers.password import PasswordCreateSerializer
 from api.serializers.encrypt_message import EncryptMessageSerializer
 from api.serializers.decrypt_message import DecryptMessageSerializer
 from api.serializers.password_rand import RandomPasswordCreateSerializer
+from api.serializers.keypair import MainKeyPairSerializer
 
 __all__ = [
     "KeyPairSerializer",
+    "RecipientSerializer",
     "UserSignUpSerializer",
     "UserSignInSerializer",
-    "RecipientSerializer",
+    "MainKeyPairSerializer",
     "PasswordCreateSerializer",
     "EncryptMessageSerializer",
     "DecryptMessageSerializer",

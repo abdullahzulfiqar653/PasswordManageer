@@ -10,6 +10,7 @@ class KeyPair(BaseModel):
     passphrase = models.CharField(max_length=64, null=True)
     private_key = models.TextField()
     public_key = models.TextField()
+    is_main = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("user", "name")
