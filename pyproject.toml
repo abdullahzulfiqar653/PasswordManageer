@@ -18,6 +18,7 @@ shortuuid = "^1.0.13"
 drf-spectacular = "^0.27.2"
 cryptography = "^43.0.0"
 gunicorn = "^23.0.0"
+whitenoise = "^6.7.0"
 
 
 [build-system]
