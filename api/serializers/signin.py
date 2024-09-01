@@ -23,4 +23,4 @@ class UserSignInSerializer(serializers.Serializer):
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
             }
-        raise AuthenticationFailed("Invalid Pass Phrase.")
+        raise AuthenticationFailed("Invalid Seed.")

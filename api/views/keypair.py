@@ -7,8 +7,6 @@ from api.serializers.keypair import KeyPairSerializer, MainKeyPairSerializer
 class KeyPairListCreateView(generics.ListCreateAPIView):
     serializer_class = KeyPairSerializer
     permission_classes = [permissions.IsAuthenticated]
-    # filter_backends = [filters.SearchFilter]
-    # search_fields = ["title", "username", "url", "notes", "emoji"]
 
     def get_queryset(self):
         # Filter KeyPairs by the current authenticated user
