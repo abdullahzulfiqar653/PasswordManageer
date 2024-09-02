@@ -8,6 +8,8 @@ class EncryptMessageSerializer(serializers.Serializer):
     recipient_ids = serializers.ListField(write_only=True)
 
     def validate_recipient_ids(self, recipient_ids):
+        if not recipient_ids:
+            raise serializers.ValidationError("At least one Recipient required.")
         user = self.context["request"].user
         invalid_ids = (
             Recipient.objects.filter(id__in=recipient_ids)
