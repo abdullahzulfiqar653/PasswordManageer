@@ -45,13 +45,19 @@ def encrypt_messages(message, public_keys_pem):
         )
         encrypted_messages.append(encrypted_message)
     encrypted_message = "-".join([msg.hex() for msg in encrypted_messages])
-    return encrypted_message
+    return f"-----BEGIN PGP MESSAGE BLOCK-----\n{encrypted_message}\n-----END PGP MESSAGE BLOCK-----"
 
 
 def decrypt_message(encrypted_messages, private_key_pem, passphrase):
+    encrypted_message = (
+        encrypted_messages.replace("-----BEGIN PGP MESSAGE BLOCK-----\n", "")
+        .replace("\n-----END PGP MESSAGE BLOCK-----", "")
+        .replace("\n", "")
+    )
     encrypted_messages = [
-        bytes.fromhex(hs) for hs in encrypted_messages.split("-") if hs
+        bytes.fromhex(hs) for hs in encrypted_message.split("-") if hs
     ]
+
     private_key = serialization.load_pem_private_key(
         private_key_pem,
         password=passphrase,
