@@ -41,17 +41,17 @@ urlpatterns = [
         name="recipient-list-create",
     ),
     path(
-        "recipients/encrypt-message",
+        "recipients/encrypt-message/",
         EncryptMessageView.as_view(),
         name="recipients-encrypt-message",
     ),
     path(
-        "recipients/decrypt-message",
+        "recipients/decrypt-message/",
         DecryptMessageView.as_view(),
         name="recipients-decrypt-message",
     ),
     path(
-        "recipients/<str:pk>",
+        "recipients/<str:pk>/",
         RecipientRetrieveUpdateDeleteView.as_view(),
         name="recipient-retrieve-update-delete",
     ),

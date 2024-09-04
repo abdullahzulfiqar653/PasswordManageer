@@ -32,7 +32,7 @@ def generate_keypair(passphrase: bytes = None):
 
 def encrypt_messages(message, public_keys_pem):
     encrypted_messages = []
-
+    print(message)
     for pem_public_key in public_keys_pem:
         public_key = serialization.load_pem_public_key(pem_public_key.encode("utf-8"))
         encrypted_message = public_key.encrypt(
@@ -43,6 +43,7 @@ def encrypt_messages(message, public_keys_pem):
                 label=None,
             ),
         )
+        print(encrypted_message)
         encrypted_messages.append(encrypted_message)
     encrypted_message = "-".join([msg.hex() for msg in encrypted_messages])
     return f"-----BEGIN PGP MESSAGE BLOCK-----\n{encrypted_message}\n-----END PGP MESSAGE BLOCK-----"

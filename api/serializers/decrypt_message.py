@@ -42,19 +42,15 @@ class DecryptMessageSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        
         keypair = KeyPair.objects.get(id=validated_data.get("keypair_id"))
         passphrase = get_passphrase(validated_data.get("passphrase"), keypair)
-
-        # Get the private key from the KeyPair model
         private_key_pem = keypair.private_key.encode("utf-8")
 
-        # Decrypt the message
         decrypted_message = decrypt_message(
             validated_data.get("message"), private_key_pem, passphrase
         )
         if not decrypted_message:
             raise serializers.ValidationError(
-                {"error": "Decryption failed: Invalid keypair selected."}
+                {"error": ["Decryption failed: Invalid keypair selected."]}
             )
         return {"message": decrypted_message.decode()}
