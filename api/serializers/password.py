@@ -3,18 +3,18 @@ from api.models.password import Password
 from rest_framework import exceptions
 
 
-class PasswordCreateSerializer(serializers.ModelSerializer):
+class PasswordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Password
         fields = [
             "id",
-            "title",
-            "username",
-            "password",
             "url",
             "notes",
+            "title",
             "emoji",
+            "username",
+            "password",
             "updated_at",
         ]
         read_only_fields = ["updated_at"]

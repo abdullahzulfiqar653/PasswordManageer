@@ -1,23 +1,18 @@
-from rest_framework import generics, permissions, filters
-from api.models.password import Password
-from api.serializers.password import PasswordCreateSerializer
+from rest_framework import generics, filters
+from api.serializers.password import PasswordSerializer
 
 
 class PasswordListCreateView(generics.ListCreateAPIView):
-    serializer_class = PasswordCreateSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PasswordSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'username', 'url', 'notes', 'emoji']
+    search_fields = ["title", "username", "url", "notes", "emoji"]
 
     def get_queryset(self):
-        # Filter passwords by the current authenticated user
-        return Password.objects.filter(user=self.request.user)
+        return self.request.user.passwords.all()
 
 
 class PasswordRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
-    serializer_class = PasswordCreateSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = PasswordSerializer
 
     def get_queryset(self):
-        # Filter passwords by the current authenticated user
-        return Password.objects.filter(user=self.request.user)
+        return self.request.user.passwords.all()
