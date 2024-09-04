@@ -9,8 +9,7 @@ class KeyPairListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Filter KeyPairs by the current authenticated user
-        return KeyPair.objects.filter(user=self.request.user)
+        return self.request.user.keypairs.all()
 
 
 class KeyPairRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
@@ -18,8 +17,7 @@ class KeyPairRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Filter Keypairs by the current authenticated user
-        return KeyPair.objects.filter(user=self.request.user)
+        return self.request.user.keypairs.all()
 
 
 class MainKeyPairCreateView(generics.CreateAPIView):
