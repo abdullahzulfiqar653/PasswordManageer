@@ -42,9 +42,7 @@ class DecryptMessageSerializer(serializers.Serializer):
         return data
 
     def create(self, validated_data):
-        encrypted_message_strings = [
-            bytes.fromhex(hs) for hs in validated_data.get("message").split("-") if hs
-        ]
+        
         keypair = KeyPair.objects.get(id=validated_data.get("keypair_id"))
         passphrase = get_passphrase(validated_data.get("passphrase"), keypair)
 
@@ -53,7 +51,7 @@ class DecryptMessageSerializer(serializers.Serializer):
 
         # Decrypt the message
         decrypted_message = decrypt_message(
-            encrypted_message_strings, private_key_pem, passphrase
+            validated_data.get("message"), private_key_pem, passphrase
         )
         if not decrypted_message:
             raise serializers.ValidationError(

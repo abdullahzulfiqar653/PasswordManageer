@@ -33,11 +33,11 @@ class EncryptMessageSerializer(serializers.Serializer):
         message = validated_data.get("message").encode()
         recipient_ids = validated_data.get("recipient_ids")
 
-        encrypted_messages = encrypt_messages(
+        encrypted_message = encrypt_messages(
             message,
             [
                 recipient.public_key
                 for recipient in Recipient.objects.filter(id__in=recipient_ids)
             ],
         )
-        return {"message": "-".join([msg.hex() for msg in encrypted_messages])}
+        return {"message": encrypted_message}

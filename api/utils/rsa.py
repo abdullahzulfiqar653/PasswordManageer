@@ -44,16 +44,20 @@ def encrypt_messages(message, public_keys_pem):
             ),
         )
         encrypted_messages.append(encrypted_message)
-    return encrypted_messages
+    encrypted_message = "-".join([msg.hex() for msg in encrypted_messages])
+    return encrypted_message
 
 
-def decrypt_message(encrypted_message_strings, private_key_pem, passphrase):
+def decrypt_message(encrypted_messages, private_key_pem, passphrase):
+    encrypted_messages = [
+        bytes.fromhex(hs) for hs in encrypted_messages.split("-") if hs
+    ]
     private_key = serialization.load_pem_private_key(
         private_key_pem,
         password=passphrase,
     )
 
-    for msg in encrypted_message_strings:
+    for msg in encrypted_messages:
         try:
             decrypted_message = private_key.decrypt(
                 msg,
