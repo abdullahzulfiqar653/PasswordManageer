@@ -1,9 +1,11 @@
 import secrets
+
 from rest_framework import serializers
+from django.contrib.auth.models import User
+
+from api.utils import hash_passphrase
 from api.utils import generate_keypair
 from api.models.keypair import KeyPair
-from django.contrib.auth.models import User
-from api.utils import hash_passphrase
 
 
 class KeyPairSerializer(serializers.ModelSerializer):
@@ -24,7 +26,7 @@ class KeyPairSerializer(serializers.ModelSerializer):
         user = self.context.get("request").user
         if KeyPair.objects.filter(user_id=user, name=name).exists():
             raise serializers.ValidationError(
-                "An entry with this user and name already exists."
+                "An keypair with this user and name already exists."
             )
         return name
 
@@ -32,20 +34,12 @@ class KeyPairSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
 
         email = validated_data.get("email")
-        # Convert passphrase to bytes if present, otherwise None
         passphrase = validated_data.get("passphrase")
         passphrase_bytes = passphrase.encode("utf-8") if passphrase else None
 
-        name = (
-            f"pair_{secrets.token_hex(3)}"
-            if not validated_data.get("name")
-            else validated_data["name"]
-        )
-
-        # Generate key pairs
+        name = validated_data.get("name") or f"pair_{secrets.token_hex(3)}"
         private_key, public_key = generate_keypair(passphrase_bytes)
 
-        # Save the key pairs in the database
         key_pair = KeyPair.objects.create(
             user=user,
             name=name,
@@ -85,10 +79,8 @@ class MainKeyPairSerializer(serializers.Serializer):
         user, _ = User.objects.get_or_create(username=pass_phrase)
         user.set_password(hash)
         user.save()
-        # Generate key pairs
+        
         private_key, public_key = generate_keypair()
-
-        # Save the key pairs in the database
         KeyPair.objects.create(
             user=user,
             is_main=True,
