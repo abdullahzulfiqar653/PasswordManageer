@@ -33,7 +33,7 @@ jobs:
 
       - name: Run Deploy
         run: |
-          ssh root@$SSH_HOST "\
+          ssh target "\
             cd /root/backends/RSAKeyVault && \
             git pull && \
             /root/.pyenv/shims/poetry install && \
