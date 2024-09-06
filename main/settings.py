@@ -106,8 +106,8 @@ SPECTACULAR_SETTINGS = {
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(weeks=2),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ACCESS_TOKEN_LIFETIME": timedelta(weeks=50),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=52),
 }
 
 AUTH_PASSWORD_VALIDATORS = [
