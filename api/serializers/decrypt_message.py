@@ -10,11 +10,34 @@ def get_passphrase(passphrase, keypair):
 
 
 class DecryptMessageSerializer(serializers.Serializer):
-    message = serializers.CharField()
-    keypair_id = serializers.CharField(write_only=True)
+    message = serializers.CharField(allow_blank=True)
+    keypair_id = serializers.CharField(write_only=True, allow_blank=True)
     passphrase = serializers.CharField(
         max_length=64, write_only=True, allow_null=True, allow_blank=True
     )
+
+    def validate_keypair_id(self, value):
+        if not value:
+            raise serializers.ValidationError(
+                "Choose a keypair to decrypt your message."
+            )
+        return value
+
+    def validate_message(self, value):
+        if not value:
+            raise serializers.ValidationError("Message is required.")
+        try:
+            encrypted_message = (
+                value.replace("-----BEGIN PGP MESSAGE BLOCK-----\n", "")
+                .replace("\n-----END PGP MESSAGE BLOCK-----", "")
+                .replace("\n", "")
+            )
+            encrypted_messages = [
+                bytes.fromhex(hs) for hs in encrypted_message.split("-") if hs
+            ]
+        except:
+            raise serializers.ValidationError("Message is not valid.")
+        return encrypted_messages
 
     def validate(self, data):
         keypair_id = data.get("keypair_id")

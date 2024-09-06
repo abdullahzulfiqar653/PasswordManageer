@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from api.models.recipient import Recipient
-from api.utils import encrypt_messages
+from api.utils import encrypt_message
 
 
 class EncryptMessageSerializer(serializers.Serializer):
@@ -33,7 +33,7 @@ class EncryptMessageSerializer(serializers.Serializer):
     def create(self, validated_data):
         message = validated_data.get("message").encode()
         recipients = validated_data.get("recipient_ids")
-        encrypted_message = encrypt_messages(
+        encrypted_message = encrypt_message(
             message,
             [
                 recipient.public_key
