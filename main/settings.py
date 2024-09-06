@@ -5,22 +5,21 @@ from datetime import timedelta
 
 
 env = environ.Env(
-    # set casting, default value
     DEBUG=(bool, False),
     SECRET_KEY=(str, "False"),
     ALLOWED_HOSTS=(list, ["localhost"]),
+    CORS_ORIGIN_ALLOW_ALL=(bool, False),
+    CORS_ALLOW_CREDENTIALS=(bool, False),
 )
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Take environment variables from .env file
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
-CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL")
+CORS_ALLOW_CREDENTIALS = env("CORS_ALLOW_CREDENTIALS")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -73,12 +72,18 @@ TEMPLATES = [
 WSGI_APPLICATION = "main.wsgi.application"
 
 
+# Database configuration
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": env("DB_ENGINE", default="django.db.backends.sqlite3"),
+        "NAME": env("DB_NAME", default=os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": env("DB_USER", default=""),
+        "PASSWORD": env("DB_PASSWORD", default=""),
+        "HOST": env("DB_HOST", default=""),
+        "PORT": env("DB_PORT", default=""),
     }
 }
+
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -101,7 +106,7 @@ SPECTACULAR_SETTINGS = {
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(days=2),
+    "ACCESS_TOKEN_LIFETIME": timedelta(weeks=2),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 

@@ -19,8 +19,8 @@ def generate_keypair(passphrase: bytes = None):
                 else serialization.NoEncryption()
             ),
         )
-    except Exception as e:
-        print(e)
+    except:
+        pass
 
     pem_public_key = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,

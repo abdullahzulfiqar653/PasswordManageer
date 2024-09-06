@@ -18,7 +18,6 @@ class UserSignInSerializer(serializers.Serializer):
         user = User.objects.filter(username=pass_phrase).first()
         if user and user.check_password(hash):
             refresh = RefreshToken.for_user(user)
-            print(f"user_id: f{user.id}")
             return {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
