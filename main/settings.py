@@ -34,7 +34,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     # user defined apps
-    "api",
+    "main",
+    "NeuroRsa",
+    "PasswordManager",
 ]
 
 MIDDLEWARE = [
