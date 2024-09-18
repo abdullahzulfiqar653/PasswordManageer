@@ -1,8 +1,8 @@
-# PasswordManageer
+# Neuronous_Services
 
 Project name: **_Neuronous_Services_**
 
-SecurePass is a robust application for generating and managing passwords for various user accounts. Enjoy flexible security with both stateful and stateless password functionalities. Store passwords securely in our encrypted database or generate passwords without storing them on our servers.
+Neuronous is a comprehensive service platform offering multiple security solutions. It includes a powerful password manager with options for both stateful and stateless password functionalities. Users can securely store passwords in an encrypted database or generate them without server retention. Additionally, Neuronous provides advanced RSA services for encrypting messages, ensuring secure communication. Whether it's password management or encryption, Neuronous delivers flexible, secure solutions tailored to modern needs.
 
 **clone project using HTTPS or SSH**
 
@@ -54,10 +54,7 @@ poetry shell
 
 **3: Setup .env to load environment variables**
 
-```
-add .env file in main source directory at the same level with manage.py and .env.example
-and setup all variables using the help of .env.example
-```
+add .env file in main source directory at the same level with manage.py and .env.example and setup all variables using the help of .env.example
 
 **5: Run the Application and API in terminal or in vscode termnal**
 Make sure to activate the virtual environment and you are in NeuronusPyServices directory
