@@ -19,6 +19,7 @@ urlpatterns = [
     path(
         "redoc/", SpectacularRedocView.as_view(url_name="schema"), name="schema-redoc"
     ),
-    path("pm/api/", include("PasswordManager.urls")),
     path("rsa/api/", include("NeuroRsa.urls")),
+    path("mail/api/", include("NeuroMail.urls")),
+    path("pm/api/", include("PasswordManager.urls")),
 ]

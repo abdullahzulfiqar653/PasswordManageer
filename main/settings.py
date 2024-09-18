@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # user defined apps
     "main",
     "NeuroRsa",
+    "NeuroMail",
     "PasswordManager",
 ]
 
