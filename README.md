@@ -1,6 +1,5 @@
 # Neuronous_Services
 
-Project name: **_Neuronous_Services_**
 
 Neuronous is a comprehensive service platform offering multiple security solutions. It includes a powerful password manager with options for both stateful and stateless password functionalities. Users can securely store passwords in an encrypted database or generate them without server retention. Additionally, Neuronous provides advanced RSA services for encrypting messages, ensuring secure communication. Whether it's password management or encryption, Neuronous delivers flexible, secure solutions tailored to modern needs.
 
@@ -22,6 +21,7 @@ git clone git@github.com:abdullahzulfiqar653/NeuronusPyServices.git
 
 **1: making environment and installing dependencies**
 **_Install python 3.11.7 on local machine https://www.python.org/_**
+
 **i: installing poetry:**
 
 **_windows:_**
