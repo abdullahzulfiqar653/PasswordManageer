@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from NeuroRsa.utils import generate_passphrase, hash_passphrase
+from main.utils import generate_passphrase, hash_passphrase
 
 
 class UserSignUpSerializer(serializers.Serializer):

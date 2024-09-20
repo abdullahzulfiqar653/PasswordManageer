@@ -2,7 +2,7 @@
 
 import random
 import hashlib
-from NeuroRsa.utils import WORDS
+from main.utils import WORDS
 
 
 def generate_passphrase(num_words=16):

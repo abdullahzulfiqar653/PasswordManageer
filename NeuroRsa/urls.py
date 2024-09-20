@@ -2,8 +2,6 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
 
 from NeuroRsa.views import (
-    UserSignInView,
-    UserSignUpView,
     EncryptMessageView,
     DecryptMessageView,
     KeyPairListCreateView,
@@ -11,6 +9,11 @@ from NeuroRsa.views import (
     RecipientListCreateView,
     KeyPairRetrieveUpdateDeleteView,
     RecipientRetrieveUpdateDeleteView,
+)
+
+from main.views import (
+    UserSignInView,
+    UserSignUpView,
 )
 
 urlpatterns = [

@@ -1,5 +1,3 @@
-from NeuroRsa.views.signup import UserSignUpView
-from NeuroRsa.views.signin import UserSignInView
 from NeuroRsa.views.keypair import KeyPairListCreateView
 from NeuroRsa.views.keypair import MainKeyPairCreateView
 from NeuroRsa.views.recipient import RecipientListCreateView
@@ -10,8 +8,6 @@ from NeuroRsa.views.recipient import RecipientRetrieveUpdateDeleteView
 
 
 __all__ = [
-    "UserSignUpView",
-    "UserSignInView",
     "EncryptMessageView",
     "DecryptMessageView",
     "KeyPairListCreateView",

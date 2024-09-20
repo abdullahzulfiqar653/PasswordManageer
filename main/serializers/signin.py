@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 
-from NeuroRsa.utils import hash_passphrase
+from main.utils import hash_passphrase
 
 
 class UserSignInSerializer(serializers.Serializer):

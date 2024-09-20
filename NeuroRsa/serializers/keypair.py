@@ -3,7 +3,7 @@ import secrets
 from rest_framework import serializers
 from django.contrib.auth.models import User
 
-from NeuroRsa.utils import hash_passphrase
+from main.utils import hash_passphrase
 from NeuroRsa.utils import generate_keypair
 from NeuroRsa.models.keypair import KeyPair
 

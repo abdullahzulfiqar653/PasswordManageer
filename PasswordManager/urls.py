@@ -1,13 +1,15 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
 from PasswordManager.views import (
-    UserSignUpView,
-    UserSignInView,
     PasswordListCreateView,
     RandomPasswordCreateView,
     PasswordRetrieveUpdateDeleteView,
 )
 
+from main.views import (
+    UserSignInView,
+    UserSignUpView,
+)
 
 urlpatterns = [
     # =====================================================

@@ -1,6 +1,3 @@
-from PasswordManager.views.signup import UserSignUpView
-from PasswordManager.views.signin import UserSignInView
-
 from PasswordManager.views.password import (
     PasswordListCreateView,
     RandomPasswordCreateView,
@@ -8,8 +5,6 @@ from PasswordManager.views.password import (
 )
 
 __all__ = [
-    "UserSignUpView",
-    "UserSignInView",
     "PasswordListCreateView",
     "RandomPasswordCreateView",
     "PasswordRetrieveUpdateDeleteView",
