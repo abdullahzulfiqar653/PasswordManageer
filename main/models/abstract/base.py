@@ -6,8 +6,8 @@ from main.models.mixins.uid import UIDMixin
 
 class BaseModel(models.Model, UIDMixin):
     id = models.CharField(max_length=15, primary_key=True, editable=False)
-    updated_at = models.DateTimeField(blank=False, null=False, auto_now=True)
-    created_at = models.DateTimeField(blank=False, null=False, auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         abstract = True
