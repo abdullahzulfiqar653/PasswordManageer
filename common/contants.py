@@ -10,4 +10,5 @@ MODEL_CODES = {
     "SubscriptionProduct": "132",
     "SubscriptionProductPrice": "133",
     "SubscriptionProductFeature": "134",
+    "UserProfile": "140",
 }

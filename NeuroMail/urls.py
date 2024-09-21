@@ -7,6 +7,7 @@ from NeuroMail.views import EmailRetrieveDeleteView
 from main.views import (
     UserSignInView,
     UserSignUpView,
+    UserProfileRetrieveUpdateDeleteView,
 )
 
 urlpatterns = [
@@ -28,5 +29,10 @@ urlpatterns = [
         "emails/<str:pk>/",
         EmailRetrieveDeleteView.as_view(),
         name="email-retrive-delete",
+    ),
+    path(
+        "profile-picture/",
+        UserProfileRetrieveUpdateDeleteView.as_view(),
+        name="user-profile-retrieve-update-delete",
     ),
 ]

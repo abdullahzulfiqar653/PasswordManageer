@@ -19,7 +19,6 @@ class EmailSerializer(serializers.ModelSerializer):
         email_feature_value = Feature.get_feature_value(
             Feature.Code.NUMBER_OF_EMAILS, user
         )
-        print(email_feature_value)
         if user.emails.count() >= email_feature_value:
             raise exceptions.PermissionDenied(
                 "Your email quota is full. Upgrade your subscription to create more emails."
