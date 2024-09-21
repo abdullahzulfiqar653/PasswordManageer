@@ -1,6 +1,9 @@
 from django.db import models
 
+from django.utils import timezone
 from main.models.abstract.base import BaseModel
+from main.models.subscription import Subscription
+from main.models.subscription_product_feature import SubscriptionProductFeature
 
 
 class Feature(BaseModel):
@@ -15,7 +18,7 @@ class Feature(BaseModel):
     )
     unit = models.CharField(max_length=50)
     description = models.TextField(blank=True)
-    default = models.FloatField(default=0)
+    default = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -23,3 +26,16 @@ class Feature(BaseModel):
     class Meta:
         verbose_name = "Product Feature"
         verbose_name_plural = "Product Features"
+
+    @staticmethod
+    def get_feature_value(feature_code, user):
+        feature = Feature.objects.get(code=feature_code)
+        product_feature = SubscriptionProductFeature.objects.filter(
+            product__subscriptions__user=user,
+            product__subscriptions__status__in=[
+                Subscription.Status.ACTIVE,
+            ],
+            product__subscriptions__end_at__gt=timezone.now(),
+            feature=feature,
+        ).first()
+        return product_feature.value if product_feature else feature.default

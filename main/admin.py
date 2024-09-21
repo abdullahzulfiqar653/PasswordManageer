@@ -2,6 +2,7 @@ from django.contrib import admin
 
 from main.models import (
     Feature,
+    Subscription,
     SubscriptionProduct,
     SubscriptionProductPrice,
     SubscriptionProductFeature,
@@ -26,3 +27,8 @@ class SubscriptionProductFeatureAdmin(admin.ModelAdmin):
 @admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin):
     list_display = ("name", "code", "unit", "default")
+
+
+@admin.register(Subscription)
+class FeatureAdmin(admin.ModelAdmin):
+    list_display = ("user", "end_at", "status")
