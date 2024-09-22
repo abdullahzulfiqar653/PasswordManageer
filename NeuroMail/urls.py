@@ -1,8 +1,11 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
 
-from NeuroMail.views import EmailListCreateView
-from NeuroMail.views import EmailRetrieveDeleteView
+from NeuroMail.views import (
+    EmailListCreateView,
+    EmailExtensionListView,
+    EmailRetrieveDeleteView,
+)
 
 from main.views import (
     UserSignInView,
@@ -25,6 +28,11 @@ urlpatterns = [
     # Email
     # =====================================================
     path("emails/", EmailListCreateView.as_view(), name="email-list-create"),
+    path(
+        "emails/extensions/",
+        EmailExtensionListView.as_view(),
+        name="email-extension-list",
+    ),
     path(
         "emails/<str:pk>/",
         EmailRetrieveDeleteView.as_view(),

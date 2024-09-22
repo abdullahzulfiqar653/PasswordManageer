@@ -1,0 +1,38 @@
+[
+    {
+        "model": "NeuroMail.emailextension",
+        "pk": "123abcdefijklm1",
+        "fields": {
+          "name": "neuromail.digital",
+          "created_at": "2024-01-01T00:00:00Z",
+          "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "NeuroMail.emailextension",
+        "pk": "123abcdefijklm2",
+        "fields": {
+          "name": "neuromail.online",
+          "created_at": "2024-01-01T00:00:00Z",
+          "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "NeuroMail.emailextension",
+        "pk": "123abcdefijklm3",
+        "fields": {
+          "name": "neuromail.space",
+          "created_at": "2024-01-01T00:00:00Z",
+          "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "NeuroMail.emailextension",
+        "pk": "123abcdefijklm4",
+        "fields": {
+          "name": "neuromail.cloud",
+          "created_at": "2024-01-01T00:00:00Z",
+          "updated_at": "2024-01-01T00:00:00Z"
+        }
+    }
+]
