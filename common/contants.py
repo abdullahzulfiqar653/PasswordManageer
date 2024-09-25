@@ -9,6 +9,7 @@ MODEL_CODES = {
     "EmailBox": "121",
     "EmailBoxRecipient": "122",
     "EmailExtension": "123",
+    "EmailAiTemplate": "124",
     # model codes for main
     "Feature": "130",
     "Subscription": "131",

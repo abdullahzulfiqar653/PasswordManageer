@@ -1,0 +1,38 @@
+[
+    {
+      "model": "NeuroMail.emailaitemplate",
+      "pk": "124abcdefijklm1",
+      "fields": {
+        "name": "Elon Musk",
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "model": "NeuroMail.emailaitemplate",
+      "pk": "124abcdefijklm2",
+      "fields": {
+        "name": "Donald Trump",
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "model": "NeuroMail.emailaitemplate",
+      "pk": "124abcdefijklm3",
+      "fields": {
+        "name": "Margaret Thatcher",
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
+      }
+    },
+    {
+      "model": "NeuroMail.emailaitemplate",
+      "pk": "124abcdefijklm4",
+      "fields": {
+        "name": "Michelle Obama",
+        "created_at": "2024-01-01T00:00:00Z",
+        "updated_at": "2024-01-01T00:00:00Z"
+      }
+    }
+  ]

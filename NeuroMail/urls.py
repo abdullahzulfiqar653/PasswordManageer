@@ -5,6 +5,7 @@ from NeuroMail.views import (
     EmailListCreateView,
     EmailExtensionListView,
     EmailRetrieveDeleteView,
+    EmailAiTemplateListView,
 )
 
 from main.views import (
@@ -37,6 +38,11 @@ urlpatterns = [
         "emails/<str:pk>/",
         EmailRetrieveDeleteView.as_view(),
         name="email-retrive-delete",
+    ),
+    path(
+        "emails/ai/templates/",
+        EmailAiTemplateListView.as_view(),
+        name="email-ai-templates-list",
     ),
     path(
         "profile-picture/",
