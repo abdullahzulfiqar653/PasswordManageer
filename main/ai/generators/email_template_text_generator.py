@@ -1,8 +1,8 @@
 from textwrap import dedent
-from langchain.output_parsers import PydanticOutputParser
+from pydantic.v1 import BaseModel
 from langchain.prompts import ChatPromptTemplate
 from langchain_openai.chat_models import ChatOpenAI
-from pydantic.v1 import BaseModel
+from langchain.output_parsers import PydanticOutputParser
 
 from main.ai import config
 from main.ai.generators.utils import ParserErrorCallbackHandler
