@@ -35,7 +35,7 @@ class DecryptMessageSerializer(serializers.Serializer):
             encrypted_messages = [
                 bytes.fromhex(hs) for hs in encrypted_message.split("-") if hs
             ]
-        except:
+        except:  # noqa
             raise serializers.ValidationError("Message is not valid.")
         return encrypted_messages
 
@@ -45,35 +45,46 @@ class DecryptMessageSerializer(serializers.Serializer):
         user = self.context["request"].user
 
         if not KeyPair.objects.filter(id=keypair_id, user=user).exists():
-            raise serializers.ValidationError({"keypair_id": "Keypair does not exist."})
+            raise serializers.ValidationError(
+                {"keypair_id": ["Keypair does not exist."]}
+            )
 
         keypair = KeyPair.objects.get(id=keypair_id, user=user)
         if not keypair.passphrase:
             return data
 
-        if not passphrase:
-            raise serializers.ValidationError(
-                {
-                    "passphrase": "Your keypair is encrypted with a passphrase. Please provide it to use the keypair."
-                }
-            )
+        # if not passphrase:
+        #     raise serializers.ValidationError(
+        #         {
+        #             "passphrase": [
+        #                 "Your keypair is encrypted with a passphrase. Please provide it to use the keypair."
+        #             ]
+        #         }
+        #     )
 
-        if not KeyPair.objects.filter(id=keypair.id, passphrase=passphrase).exists():
-            raise serializers.ValidationError(
-                {"passphrase": "Invalid passphrase. Please try again."}
-            )
+        # if not KeyPair.objects.filter(id=keypair.id, passphrase=passphrase).exists():
+        #     raise serializers.ValidationError(
+        #         {"passphrase": ["Invalid passphrase. Please try again."]}
+        #     )
         return data
 
     def create(self, validated_data):
         keypair = KeyPair.objects.get(id=validated_data.get("keypair_id"))
-        passphrase = get_passphrase(validated_data.get("passphrase"), keypair)
+        # passphrase = get_passphrase(validated_data.get("passphrase"), keypair)
         private_key_pem = keypair.private_key.encode("utf-8")
-
-        decrypted_message = decrypt_message(
-            validated_data.get("message"), private_key_pem, passphrase
-        )
-        if not decrypted_message:
+        try:
+            decrypted_message = decrypt_message(
+                validated_data.get("message"), private_key_pem, None
+            )
+        except:  # noqa
             raise serializers.ValidationError(
-                {"error": ["Decryption failed: Invalid keypair selected."]}
+                {
+                    "error": [
+                        f"""Decryption failed: {
+                            'Required passphrase for this keypair.' if keypair.passphrase else
+                            'Invalid keypair selected.'
+                        }"""
+                    ]
+                }
             )
         return {"message": decrypted_message.decode()}

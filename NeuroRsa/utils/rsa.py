@@ -53,15 +53,12 @@ def decrypt_message(encrypted_messages, private_key_pem, passphrase):
         password=passphrase,
     )
     for msg in encrypted_messages:
-        try:
-            decrypted_message = private_key.decrypt(
-                msg,
-                padding.OAEP(
-                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
-                    algorithm=hashes.SHA256(),
-                    label=None,
-                ),
-            )
-            return decrypted_message
-        except:
-            pass
+        decrypted_message = private_key.decrypt(
+            msg,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None,
+            ),
+        )
+        return decrypted_message

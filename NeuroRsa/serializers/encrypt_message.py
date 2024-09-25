@@ -4,7 +4,7 @@ from NeuroRsa.utils import encrypt_message
 
 
 class EncryptMessageSerializer(serializers.Serializer):
-    message = serializers.CharField()
+    message = serializers.CharField(allow_blank=True)
     recipient_ids = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Recipient.objects.all(),
@@ -24,6 +24,8 @@ class EncryptMessageSerializer(serializers.Serializer):
         return recipient_ids
 
     def validate_message(self, message):
+        if not message:
+            raise serializers.ValidationError("Message content cannot be empty.")
         if len(message) > 446:
             raise serializers.ValidationError(
                 "Message content cannot be greater then 446 characters."
@@ -33,13 +35,22 @@ class EncryptMessageSerializer(serializers.Serializer):
     def create(self, validated_data):
         message = validated_data.get("message").encode()
         recipients = validated_data.get("recipient_ids")
-        encrypted_message = encrypt_message(
-            message,
-            [
-                recipient.public_key
-                for recipient in Recipient.objects.filter(
-                    id__in=[recipients.id for recipients in recipients]
-                )
-            ],
-        )
+        try:
+            encrypted_message = encrypt_message(
+                message,
+                [
+                    recipient.public_key
+                    for recipient in Recipient.objects.filter(
+                        id__in=[recipients.id for recipients in recipients]
+                    )
+                ],
+            )
+        except Exception as e:  # noqa
+            raise serializers.ValidationError(
+                {
+                    "error": [
+                        f"{'Some of Recipients' if len(recipients) > 1 else 'Recipient'} has the wrong public key, which cannot be used to encrypt the message."
+                    ]
+                }
+            )
         return {"message": encrypted_message}
