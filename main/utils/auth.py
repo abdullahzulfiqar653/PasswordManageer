@@ -1,6 +1,7 @@
 # utils.py
-
+import string
 import random
+import secrets
 import hashlib
 from main.utils import WORDS
 
@@ -15,3 +16,10 @@ def hash_passphrase(passphrase):
 
 def verify_passphrase(input_passphrase, stored_hash):
     return hash_passphrase(input_passphrase) == stored_hash
+
+
+def generate_random_password(length=15):
+    return "".join(
+        secrets.choice(string.ascii_letters + string.digits + string.punctuation)
+        for _ in range(length)
+    )
