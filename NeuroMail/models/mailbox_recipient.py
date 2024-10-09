@@ -1,10 +1,11 @@
 from django.db import models
 
 from main.models.abstract.base import BaseModel
-from NeuroMail.models.email_box import EmailBox
+from NeuroMail.models.mailbox import MailBox
 
 
-class EmailBoxRecipient(BaseModel):
+class MailBoxRecipient(BaseModel):
+    UID_PREFIX = 122
     TO = "to"
     CC = "cc"
     BCC = "bcc"
@@ -15,8 +16,8 @@ class EmailBoxRecipient(BaseModel):
         (BCC, "BCC"),
     ]
 
-    email_box = models.ForeignKey(
-        EmailBox, on_delete=models.CASCADE, related_name="recipients"
+    mail_box = models.ForeignKey(
+        MailBox, on_delete=models.CASCADE, related_name="recipients"
     )
     email = models.EmailField()
     recipient_type = models.CharField(max_length=3, choices=RECIPIENT_TYPE_CHOICES)

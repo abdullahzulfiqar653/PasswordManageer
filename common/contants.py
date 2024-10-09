@@ -6,8 +6,8 @@ MODEL_CODES = {
     "Recipient": "111",
     # model codes for NeuroMail
     "Email": "120",
-    "EmailBox": "121",
-    "EmailBoxRecipient": "122",
+    "MailBox": "121",
+    "MailBoxRecipient": "122",
     "EmailExtension": "123",
     "EmailAiTemplate": "124",
     # model codes for main
