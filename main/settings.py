@@ -22,8 +22,9 @@ CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL")
 CORS_ALLOW_CREDENTIALS = env("CORS_ALLOW_CREDENTIALS")
 
 # Mail Server Variables
-MAIL_SERVER_BASE_URL = env("MAIL_SERVER_BASE_URL")
+MAIL_SERVER = env("MAIL_SERVER")
 MAIL_SERVER_API_KEY = env("MAIL_SERVER_API_KEY")
+MAIL_SERVER_BASE_URL = env("MAIL_SERVER_BASE_URL")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "rest_framework",
     "corsheaders",
+    "django_filters",
     # user defined apps
     "main",
     "NeuroRsa",
