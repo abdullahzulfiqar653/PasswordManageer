@@ -7,6 +7,10 @@ from NeuroMail.views import (
     EmailRetrieveDeleteView,
     EmailAiTemplateListView,
     RephraseEmailCreateView,
+    EmailExistenceCheckView,
+    MailboxEmailListCreateView,
+    MailboxEmailRetrieveView,
+    MailboxEmailTrashView,
 )
 
 from main.views import (
@@ -29,6 +33,11 @@ urlpatterns = [
     # =====================================================
     # Email
     # =====================================================
+    path(
+        "emails/existance/verify/",
+        EmailExistenceCheckView.as_view(),
+        name="email-existance-verify",
+    ),
     path("emails/", EmailListCreateView.as_view(), name="email-list-create"),
     path(
         "emails/extensions/",
@@ -50,8 +59,29 @@ urlpatterns = [
         RephraseEmailCreateView.as_view(),
         name="rephrase-email-create",
     ),
+    # =====================================================
+    # Email
+    # =====================================================
     path(
-        "profile-picture/",
+        "mailbox/emails/",
+        MailboxEmailListCreateView.as_view(),
+        name="mailbox-email-list-create",
+    ),
+    path(
+        "mailbox/emails/trash/",
+        MailboxEmailTrashView.as_view(),
+        name="mailbox-email-trash",
+    ),
+    path(
+        "mailbox/emails/<str:pk>/",
+        MailboxEmailRetrieveView.as_view(),
+        name="mailbox-email-retrieve",
+    ),
+    # =====================================================
+    # Profile
+    # =====================================================
+    path(
+        "profile/pictures/",
         UserProfileRetrieveUpdateDeleteView.as_view(),
         name="user-profile-retrieve-update-delete",
     ),
