@@ -48,6 +48,10 @@ class EmailSerializer(serializers.ModelSerializer):
         validated_data["password"] = password
         local_part = validated_data.pop("local_part")
 
+        if self.context.get("is_check", False):
+            # Return a response indicating that the email is available (doesn't exist)
+            return {}
+
         # Check if the user has reached the email quota
         email_feature_value = Feature.get_feature_value(
             Feature.Code.NUMBER_OF_EMAILS, user
