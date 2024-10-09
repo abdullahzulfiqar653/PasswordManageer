@@ -5,7 +5,7 @@ from NeuroMail.models.mailbox import MailBox
 
 class MailboxTrashSerializer(serializers.Serializer):
     mailboxes = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=MailBox.objects.none(), pk_field=serializers.CharField()
+        many=True, queryset=MailBox.objects.all(), pk_field=serializers.CharField()
     )
 
     def __init__(self, *args, **kwargs):
@@ -16,30 +16,28 @@ class MailboxTrashSerializer(serializers.Serializer):
         request = self.context.get("request")
         if hasattr(request, "user") and request.user.is_authenticated:
             email = self.context.get("email")
-            for i in email.email_boxes.all():
-                print(i.id, "-----------")
             self.fields["mailboxes"].queryset = email.email_boxes.all()
 
     def update_emails_to_trash(self):
-        emails = self.validated_data["emails"]
+        mailboxes = self.validated_data["mailboxes"]
 
         mailboxes_to_update = []
-        for email in emails:
+        for email in mailboxes:
             email.email_type = MailBox.TRASH
             mailboxes_to_update.append(email)
 
         if mailboxes_to_update:
             MailBox.objects.bulk_update(mailboxes_to_update, ["email_type"])
-        return emails
+        return mailboxes
 
     def update_trash_to_emails(self):
-        emails = self.validated_data["emails"]
+        mailboxes = self.validated_data["mailboxes"]
         mailboxes_to_update = []
-        for email in emails:
+        for email in mailboxes:
             if email.email_type == MailBox.TRASH:
-                email.email_type == email.primary_email_type
+                email.email_type = email.primary_email_type
                 mailboxes_to_update.append(email)
 
         if mailboxes_to_update:
             MailBox.objects.bulk_update(mailboxes_to_update, ["email_type"])
-        return emails
+        return mailboxes
