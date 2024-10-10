@@ -9,7 +9,7 @@ from NeuroMail.views import (
     RephraseEmailCreateView,
     EmailExistenceCheckView,
     MailboxEmailListCreateView,
-    MailboxEmailRetrieveView,
+    MailboxEmailRetrieveUpdateView,
     MailboxEmailTrashView,
 )
 
@@ -74,8 +74,8 @@ urlpatterns = [
     ),
     path(
         "mailbox/emails/<str:pk>/",
-        MailboxEmailRetrieveView.as_view(),
-        name="mailbox-email-retrieve",
+        MailboxEmailRetrieveUpdateView.as_view(),
+        name="mailbox-email-retrieve-update",
     ),
     # =====================================================
     # Profile

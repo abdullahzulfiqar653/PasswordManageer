@@ -5,6 +5,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from NeuroMail.models.email import Email
 from NeuroMail.serializers.mailbox import MailBoxSerializer
 from NeuroMail.serializers.mailbox_trash import MailboxTrashSerializer
+from NeuroMail.serializers.mailbox_starred import MailboxStarredSerializer
 
 
 class MailboxEmailListCreateView(generics.ListCreateAPIView):
@@ -26,8 +27,12 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
             raise exceptions.PermissionDenied({"error": "Invalid email selected."})
 
 
-class MailboxEmailRetrieveView(generics.RetrieveAPIView):
-    serializer_class = MailBoxSerializer
+class MailboxEmailRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+
+    def get_serializer_class(self):
+        if self.request.method in ("PATCH", "PUT"):
+            return MailboxStarredSerializer
+        return MailBoxSerializer
 
     def get_queryset(self):
         selected_email = self.request.query_params.get("email")
