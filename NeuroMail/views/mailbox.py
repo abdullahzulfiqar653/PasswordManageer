@@ -1,8 +1,14 @@
+import secrets
 from rest_framework.response import Response
 from rest_framework import generics, exceptions, status
 from django_filters.rest_framework import DjangoFilterBackend
 
 from NeuroMail.models.email import Email
+from NeuroMail.models.mailbox import MailBox
+from NeuroMail.models.mailbox_recipient import MailBoxRecipient
+
+from NeuroMail.utils.imap_server import fetch_inbox_emails
+
 from NeuroMail.serializers.mailbox import MailBoxSerializer
 from NeuroMail.serializers.mailbox_trash import MailboxTrashSerializer
 from NeuroMail.serializers.mailbox_starred import MailboxStarredSerializer
@@ -11,7 +17,7 @@ from NeuroMail.serializers.mailbox_starred import MailboxStarredSerializer
 class MailboxEmailListCreateView(generics.ListCreateAPIView):
     serializer_class = MailBoxSerializer
     filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["email_type", "is_starred"]
+    filterset_fields = ["email_type", "is_starred", "is_seen"]
 
     def get_queryset(self):
         selected_email = self.request.query_params.get("email")
@@ -19,9 +25,34 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
             raise exceptions.ValidationError(
                 {"error": "No email provided in the query parameters."}
             )
-        # Get the email object associated with the user
+        email_type = self.request.query_params.get("email_type")
         try:
             email_account = self.request.user.emails.get(email=selected_email)
+            if email_type == MailBox.INBOX:
+                emails = fetch_inbox_emails(email_account.email, email_account.password)
+                mailboxes = []
+                recipients = []
+
+                for email in emails:
+                    mail_box = MailBox(
+                        id=f"{MailBox.UID_PREFIX}{secrets.token_hex(6)}",
+                        email=email_account,
+                        body=email["body"],
+                        is_seen=email["is_seen"],
+                        subject=email["subject"],
+                        email_type=email["email_type"],
+                    )
+                    mailboxes.append(mail_box)
+                    for recipient in email["recipients"]:
+                        recipients.append(
+                            MailBoxRecipient(
+                                id=f"{MailBoxRecipient.UID_PREFIX}{secrets.token_hex(6)}",
+                                mail_box=mail_box,
+                                **recipient,
+                            )
+                        )
+                MailBox.objects.bulk_create(mailboxes)
+                MailBoxRecipient.objects.bulk_create(recipients)
             return email_account.email_boxes.all()
         except Email.DoesNotExist:
             raise exceptions.PermissionDenied({"error": "Invalid email selected."})

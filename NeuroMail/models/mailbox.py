@@ -4,7 +4,7 @@ from NeuroMail.models.email import Email
 
 
 class MailBox(BaseModel):
-    UID_PREFIX = 122
+    UID_PREFIX = 121
     INBOX = "inbox"
     SENT = "sent"
     DRAFT = "draft"
@@ -30,6 +30,7 @@ class MailBox(BaseModel):
         max_length=10, choices=EMAIL_TYPE_CHOICES, null=True, blank=True
     )
     is_starred = models.BooleanField(default=False)
+    is_seen = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.subject} - {self.email_type} ({self.email.email})"

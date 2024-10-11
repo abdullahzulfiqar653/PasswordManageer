@@ -20,6 +20,7 @@ class MailBoxSerializer(serializers.ModelSerializer):
             "body",
             "email",
             "subject",
+            "is_seen",
             "attachment",
             "email_type",
             "is_starred",
@@ -49,7 +50,7 @@ class MailBoxSerializer(serializers.ModelSerializer):
         )
         recipients = [
             MailBoxRecipient(
-                id=f"{MailBox.UID_PREFIX}{secrets.token_hex(5)}",
+                id=f"{MailBoxRecipient.UID_PREFIX}{secrets.token_hex(6)}",
                 mail_box=mail_box,
                 email=recipient_data["email"],
                 recipient_type=recipient_data["recipient_type"],

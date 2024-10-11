@@ -5,4 +5,4 @@ from NeuroMail.models.mailbox import MailBox
 class MailboxStarredSerializer(serializers.ModelSerializer):
     class Meta:
         model = MailBox
-        fields = ["is_starred"]
+        fields = ["is_starred", "is_seen"]

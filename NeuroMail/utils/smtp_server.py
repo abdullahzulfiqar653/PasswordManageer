@@ -20,16 +20,11 @@ def send_email(
 ):
     """
     Send an email with the given subject, body, and attachments.
-
-    :param subject: Subject of the email
-    :param body: Body of the email (plain text or fallback if template is not provided)
-    :param from_email: The sender's email address
-    :param recipients: A dictionary containing 'to', 'cc', and 'bcc' as lists
-    :param attachments: A list of file paths to attach to the email
-    :param password: Password for the sender's email to authenticate the SMTP connection
     """
 
-    msg = MIMEMultipart()
+    msg = MIMEMultipart(
+        "alternative"
+    )  # Set alternative to send both plain text and HTML
     msg["From"] = from_email
     msg["Subject"] = subject
 
@@ -50,8 +45,11 @@ def send_email(
     msg["To"] = ", ".join(to_emails)
     msg["Cc"] = ", ".join(cc_emails)
 
-    # Bcc is handled but not added to the message headers, as it should be hidden
+    # Attach plain text version (fallback)
+    plain_body = body.strip()  # In case you want to handle plain text
+    msg.attach(MIMEText(plain_body, "plain"))
 
+    # Attach HTML version
     msg.attach(MIMEText(body, "html"))
 
     # Attach files if any

@@ -19,6 +19,7 @@ class MailBoxRecipient(BaseModel):
     mail_box = models.ForeignKey(
         MailBox, on_delete=models.CASCADE, related_name="recipients"
     )
+    name = models.CharField(max_length=256, null=True, blank=True)
     email = models.EmailField()
     recipient_type = models.CharField(max_length=3, choices=RECIPIENT_TYPE_CHOICES)
 
