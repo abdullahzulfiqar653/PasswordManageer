@@ -1,69 +1,67 @@
-import secrets
+from rest_framework import exceptions
 from rest_framework import serializers
 
-from NeuroMail.models.email import Email
+from main.models.feature import Feature
 from NeuroMail.models.mailbox import MailBox
-from NeuroMail.models.mailbox_recipient import MailBoxRecipient
+from NeuroMail.models.email_extension import EmailExtension
+from NeuroMail.utils.mail_server_apis import create_mail_box
+from main.utils.auth import generate_random_password
 
-from NeuroMail.utils.smtp_server import send_email
-from NeuroMail.serializers.mailbox_recipient import MailBoxEmailRecipientSerializer
 
-
-class MailBoxSerializer(serializers.ModelSerializer):
-    email = serializers.PrimaryKeyRelatedField(queryset=Email.objects.none())
-    recipients = MailBoxEmailRecipientSerializer(many=True)
+class MailboxSerializer(serializers.ModelSerializer):
+    local_part = serializers.CharField(write_only=True, required=True)
+    domain = serializers.PrimaryKeyRelatedField(
+        queryset=EmailExtension.objects.all(), write_only=True
+    )
 
     class Meta:
         model = MailBox
         fields = [
             "id",
-            "body",
             "email",
-            "subject",
-            "is_seen",
-            "attachment",
-            "email_type",
-            "is_starred",
-            "recipients",
+            "domain",
+            "local_part",
         ]
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "email"]
 
-    def __init__(self, *args, **kwargs):
-        """
-        Modifying the queryset of the email field based on the request user.
-        """
-        super().__init__(*args, **kwargs)
-        request = self.context.get("request")
-        if hasattr(request, "user") and request.user.is_authenticated:
-            self.fields["email"].queryset = request.user.emails.all()
+    def validate(self, attrs):
+        local_part = attrs.get("local_part")
+        domain = attrs.get("domain")
+
+        # Combine local_part and domain to form the full email
+        email = f"{local_part}@{domain.name}"
+
+        # Check if the email with this local_part and domain already exists
+        if MailBox.objects.filter(email=email).exists():
+            raise exceptions.ValidationError(
+                {"email": "An mailbox with this local part and domain already exists."}
+            )
+
+        attrs["email"] = email
+        return attrs
 
     def create(self, validated_data):
-        email = validated_data.get("email")
-        recipients_data = validated_data.pop("recipients")
-        email_type = validated_data.get("email_type")
-        if email_type not in (MailBox.DRAFT, MailBox.SENT):
-            raise serializers.ValidationError(
-                {"email_type": f"{email_type} is not a valid choice."}
-            )
-        mail_box = MailBox.objects.create(
-            **validated_data, primary_email_type=email_type
+        user = self.context["request"].user
+        validated_data["user"] = user
+        domain = validated_data.pop("domain")
+        password = generate_random_password()
+        validated_data["password"] = password
+        local_part = validated_data.pop("local_part")
+
+        if self.context.get("is_check", False):
+            # Return a response indicating that the email is available (doesn't exist)
+            return {}
+
+        # Check if the user has reached the email quota
+        mailbox_allowed = Feature.get_feature_value(
+            Feature.Code.NUMBER_OF_MAILBOX, user
         )
-        recipients = [
-            MailBoxRecipient(
-                id=f"{MailBoxRecipient.UID_PREFIX}{secrets.token_hex(6)}",
-                mail_box=mail_box,
-                email=recipient_data["email"],
-                recipient_type=recipient_data["recipient_type"],
+        if user.mailboxes.count() >= mailbox_allowed:
+            raise exceptions.PermissionDenied(
+                "Your mailboxes quota is full. Upgrade your subscription to create more mailboxes."
             )
-            for recipient_data in recipients_data
-        ]
-        MailBoxRecipient.objects.bulk_create(recipients)
-        if email_type == MailBox.SENT:
-            send_email(
-                validated_data["subject"],
-                validated_data["body"],
-                email.email,
-                email.password,
-                recipients_data,
-            )
-        return mail_box
+
+        success, msg = create_mail_box(local_part, password, domain.name)
+        if success:
+            return super().create(validated_data)
+        raise serializers.ValidationError(msg)

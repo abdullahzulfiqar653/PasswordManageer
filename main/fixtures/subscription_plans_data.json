@@ -3,10 +3,10 @@
       "model": "main.feature",
       "pk": "130abcdefijklm1",
       "fields": {
-        "name": "Number of Emails",
-        "code": "number-of-emails",
-        "unit": "emails",
-        "description": "The number of emails allowed in the subscription.",
+        "name": "Number of Mailbox",
+        "code": "number-of-mailbox",
+        "unit": "mailbox",
+        "description": "The number of mailbox allowed in the subscription.",
         "default": 5,
         "created_at": "2024-01-01T00:00:00Z",
         "updated_at": "2024-01-01T00:00:00Z"
@@ -16,10 +16,10 @@
       "model": "main.feature",
       "pk": "130abcdefijklm2",
       "fields": {
-        "name": "Storage (GB per Email)",
-        "code": "storage-gb-each-email",
+        "name": "Storage (GB per Mailbox)",
+        "code": "storage-gb-each-mailbox",
         "unit": "GB",
-        "description": "Storage space in GB per email for the subscription.",
+        "description": "Storage space in GB per mailbox for the subscription.",
         "default": 5,
         "created_at": "2024-01-01T00:00:00Z",
         "updated_at": "2024-01-01T00:00:00Z"

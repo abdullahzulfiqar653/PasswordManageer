@@ -2,15 +2,16 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
 
 from NeuroMail.views import (
-    EmailListCreateView,
+    MailBoxListCreateView,
+    MailBoxExistenceCheckView,
+    MailBoxRetrieveDeleteView,
     EmailExtensionListView,
-    EmailRetrieveDeleteView,
     EmailAiTemplateListView,
     RephraseEmailCreateView,
-    EmailExistenceCheckView,
     MailboxEmailListCreateView,
     MailboxEmailRetrieveUpdateView,
-    MailboxEmailTrashView,
+    MailboxEmailMoveToTrashView,
+    MailboxEmailRestoreFromTrashView,
 )
 
 from main.views import (
@@ -31,23 +32,46 @@ urlpatterns = [
         name="generate-pass-phrase",
     ),
     # =====================================================
+    # MailBox
+    # =====================================================
+    path("mailbox/", MailBoxListCreateView.as_view(), name="mailbox-list-create"),
+    path(
+        "mailbox/extensions/",
+        EmailExtensionListView.as_view(),
+        name="mailbox-extension-list",
+    ),
+    path(
+        "mailbox/existance/verify/",
+        MailBoxExistenceCheckView.as_view(),
+        name="mailbox-existance-verify",
+    ),
+    path(
+        "mailbox/<str:pk>/",
+        MailBoxRetrieveDeleteView.as_view(),
+        name="mailbox-retrive-delete",
+    ),
+    # =====================================================
     # Email
     # =====================================================
     path(
-        "emails/existance/verify/",
-        EmailExistenceCheckView.as_view(),
-        name="email-existance-verify",
-    ),
-    path("emails/", EmailListCreateView.as_view(), name="email-list-create"),
-    path(
-        "emails/extensions/",
-        EmailExtensionListView.as_view(),
-        name="email-extension-list",
+        "mailbox/<str:mailbox_id>/emails/",
+        MailboxEmailListCreateView.as_view(),
+        name="mailbox-email-list-create",
     ),
     path(
-        "emails/<str:pk>/",
-        EmailRetrieveDeleteView.as_view(),
-        name="email-retrive-delete",
+        "mailbox/<str:mailbox_id>/emails/move-to-trash/",
+        MailboxEmailMoveToTrashView.as_view(),
+        name="mailbox-email-move-to-trash",
+    ),
+    path(
+        "mailbox/<str:mailbox_id>/emails/restore-from-trash/",
+        MailboxEmailRestoreFromTrashView.as_view(),
+        name="mailbox-email-restore-from-trash",
+    ),
+    path(
+        "mailbox/<str:mailbox_id>/emails/<str:pk>/",
+        MailboxEmailRetrieveUpdateView.as_view(),
+        name="mailbox-email-retrieve-update",
     ),
     path(
         "emails/ai/templates/",
@@ -58,24 +82,6 @@ urlpatterns = [
         "emails/ai/rephrase/",
         RephraseEmailCreateView.as_view(),
         name="rephrase-email-create",
-    ),
-    # =====================================================
-    # Email
-    # =====================================================
-    path(
-        "mailbox/emails/",
-        MailboxEmailListCreateView.as_view(),
-        name="mailbox-email-list-create",
-    ),
-    path(
-        "mailbox/emails/trash/",
-        MailboxEmailTrashView.as_view(),
-        name="mailbox-email-trash",
-    ),
-    path(
-        "mailbox/emails/<str:pk>/",
-        MailboxEmailRetrieveUpdateView.as_view(),
-        name="mailbox-email-retrieve-update",
     ),
     # =====================================================
     # Profile

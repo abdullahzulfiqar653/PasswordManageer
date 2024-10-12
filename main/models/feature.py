@@ -8,8 +8,8 @@ from main.models.subscription_product_feature import SubscriptionProductFeature
 
 class Feature(BaseModel):
     class Code(models.TextChoices):
-        NUMBER_OF_EMAILS = "number-of-emails"
-        STORAGE_GB_EACH_EMAIL = "storage-gb-each-email"
+        NUMBER_OF_MAILBOX = "number-of-mailbox"
+        STORAGE_GB_EACH_MAILBOX = "storage-gb-each-mailbox"
 
     name = models.CharField(max_length=100)
     code = models.CharField(choices=Code.choices, max_length=100, unique=True)

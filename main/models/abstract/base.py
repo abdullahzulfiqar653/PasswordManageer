@@ -10,6 +10,7 @@ class BaseModel(models.Model, UIDMixin):
 
     class Meta:
         abstract = True
+        ordering = ["created_at"]
 
     def save(self, *args, **kwargs):
         self.set_uid()
