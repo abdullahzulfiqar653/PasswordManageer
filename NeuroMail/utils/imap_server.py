@@ -3,9 +3,6 @@ import imaplib
 from django.conf import settings
 from email.header import decode_header
 
-from django.core.files.base import ContentFile
-
-
 IMAP_SERVER = settings.MAIL_SERVER
 IMAP_PORT = 993  # Use 993 for SSL
 
@@ -31,7 +28,6 @@ def fetch_inbox_emails(username, password):
     email_list = []  # List to store email data
 
     for e_id in email_ids:
-        # Fetch the email by ID and Mark the email as read
         res, msg_data = mail.fetch(e_id, "(RFC822)")
         mail.store(e_id, "+FLAGS", "\\Seen")
         for response_part in msg_data:
@@ -67,6 +63,8 @@ def fetch_inbox_emails(username, password):
                 )
 
                 body = ""
+                attachments = []  # List to store attachment data
+
                 if msg.is_multipart():
                     for part in msg.walk():
                         content_type = part.get_content_type()
@@ -85,6 +83,19 @@ def fetch_inbox_emails(username, password):
                             and "attachment" not in content_disposition
                         ):
                             body = part.get_payload(decode=True).decode()
+
+                        # Handle attachments
+                        if "attachment" in content_disposition:
+                            filename = part.get_filename()
+                            if filename:
+                                attachment_data = part.get_payload(decode=True)
+                                attachments.append(
+                                    {
+                                        "filename": filename,
+                                        "content_type": content_type,
+                                        "data": attachment_data,
+                                    }
+                                )
                 else:
                     body = msg.get_payload(decode=True).decode()
 
@@ -95,9 +106,11 @@ def fetch_inbox_emails(username, password):
                     "is_seen": False,  # since you're fetching unseen emails
                     "email_type": "inbox",
                     "recipients": recipients,
+                    "attachments": attachments,  # Attachments list
                 }
 
                 # Add the structured email data to the email list
                 email_list.append(email_data)
+
     mail.logout()
     return email_list

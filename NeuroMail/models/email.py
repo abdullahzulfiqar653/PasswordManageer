@@ -4,7 +4,7 @@ from NeuroMail.models.mailbox import MailBox
 
 
 class Email(BaseModel):
-    UID_PREFIX = 121
+    UID_PREFIX = 120
     INBOX = "inbox"
     SENT = "sent"
     DRAFT = "draft"
@@ -22,9 +22,6 @@ class Email(BaseModel):
     )
     subject = models.CharField(max_length=255)
     body = models.TextField()
-    attachment = models.FileField(
-        upload_to="mailbox/attachments/", null=True, blank=True
-    )
     email_type = models.CharField(
         max_length=10, choices=EMAIL_TYPE_CHOICES, default=DRAFT
     )
@@ -33,6 +30,7 @@ class Email(BaseModel):
     )
     is_starred = models.BooleanField(default=False)
     is_seen = models.BooleanField(default=False)
+    total_size = models.BigIntegerField(default=0)
 
     def __str__(self):
         return f"{self.subject} - {self.email_type} ({self.email.email})"

@@ -1,18 +1,21 @@
 import secrets
-from rest_framework.response import Response
 
 from rest_framework import generics, status
+from rest_framework.response import Response
+from django.core.files.base import ContentFile
 from django_filters.rest_framework import DjangoFilterBackend
 
 from NeuroMail.models.email import Email
 from NeuroMail.models.email_recipient import EmailRecipient
+from NeuroMail.models.email_attachment import EmailAttachment
 
-from NeuroMail.utils.imap_server import fetch_inbox_emails
 
 from NeuroMail.serializers.email import EmailSerializer
 from NeuroMail.serializers.email_trash import EmailTrashSerializer
 from NeuroMail.serializers.email_starred import EmailUpdateSerializer
+
 from NeuroMail.permissions import IsMailBoxOwner
+from NeuroMail.utils.imap_server import fetch_inbox_emails
 
 
 class MailboxEmailListCreateView(generics.ListCreateAPIView):
@@ -29,8 +32,11 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
             emails = fetch_inbox_emails(mailbox.email, mailbox.password)
             new_emails = []
             recipients = []
+            attachments = []
 
             for email in emails:
+                body_size = len(email["body"].encode("utf-8"))  # Size of body in bytes
+                total_size = body_size
                 new_email = Email(
                     id=f"{Email.UID_PREFIX}{secrets.token_hex(6)}",
                     mailbox=mailbox,
@@ -48,8 +54,25 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
                             **recipient,
                         )
                     )
+                # Create attachments
+                for attachment in email.get("attachments", []):
+                    attachment_size = len(attachment["data"])
+                    total_size += attachment_size
+                    attachments.append(
+                        EmailAttachment(
+                            id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
+                            mail=new_email,
+                            filename=attachment["filename"],
+                            content_type=attachment["content_type"],
+                            file=ContentFile(
+                                attachment["data"], name=attachment["filename"]
+                            ),
+                        )
+                    )
+                new_email.total_size = total_size
             Email.objects.bulk_create(new_emails)
             EmailRecipient.objects.bulk_create(recipients)
+            EmailAttachment.objects.bulk_create(attachments)
         return mailbox.emails.all()
 
 

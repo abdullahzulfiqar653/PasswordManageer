@@ -6,10 +6,12 @@ from NeuroMail.models.email_recipient import EmailRecipient
 
 from NeuroMail.utils.smtp_server import send_email
 from NeuroMail.serializers.email_recipient import EmailRecipientSerializer
+from NeuroMail.serializers.email_attachment import EmailAttachmentSerializer
 
 
 class EmailSerializer(serializers.ModelSerializer):
     recipients = EmailRecipientSerializer(many=True)
+    attachments = EmailAttachmentSerializer(many=True)
 
     class Meta:
         model = Email
@@ -18,12 +20,13 @@ class EmailSerializer(serializers.ModelSerializer):
             "body",
             "subject",
             "is_seen",
-            "attachment",
+            "attachments",
             "email_type",
             "is_starred",
             "recipients",
+            "total_size",
         ]
-        read_only_fields = ["id"]
+        read_only_fields = ["id", "total_size"]
 
     def create(self, validated_data):
         request = self.context.get("request")
