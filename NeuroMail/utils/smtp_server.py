@@ -5,7 +5,6 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 
-
 SMTP_SERVER = settings.MAIL_SERVER
 SMTP_PORT = 587  # Use 587 for TLS, 465 for SSL
 
@@ -16,7 +15,7 @@ def send_email(
     from_email,
     password,
     recipients,
-    attachments=None,
+    attachments=[],
 ):
     """
     Send an email with the given subject, body, and attachments.
