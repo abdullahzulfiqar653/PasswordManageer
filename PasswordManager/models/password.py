@@ -17,6 +17,7 @@ class Password(BaseModel):
         on_delete=models.CASCADE,
         related_name="folder_passwords",
     )
+    file = models.FileField(upload_to="protected/passwords/attachments/", null=True)
 
     def __str__(self):
         return self.title
