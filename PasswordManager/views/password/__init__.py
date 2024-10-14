@@ -1,3 +1,4 @@
 from .password import PasswordListCreateView
 from .password_rand import RandomPasswordCreateView
+from .password_delete import BulkPasswordDeleteView
 from .password import PasswordRetrieveUpdateDeleteView

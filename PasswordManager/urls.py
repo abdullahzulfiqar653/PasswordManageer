@@ -1,7 +1,9 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
+
 from PasswordManager.views import (
     PasswordListCreateView,
+    BulkPasswordDeleteView,
     RandomPasswordCreateView,
     PasswordRetrieveUpdateDeleteView,
 )
@@ -24,6 +26,11 @@ urlpatterns = [
         "passwords/generate-random/",
         RandomPasswordCreateView.as_view(),
         name="generate-random",
+    ),
+    path(
+        "passwords/delete/",
+        BulkPasswordDeleteView.as_view(),
+        name="bulk-password-delete",
     ),
     path(
         "passwords/<str:pk>/",
