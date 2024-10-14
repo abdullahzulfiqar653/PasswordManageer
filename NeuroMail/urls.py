@@ -1,5 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
+from main.views.protected_media import ProtectedMediaView
+
 
 from NeuroMail.views import (
     MailBoxListCreateView,
@@ -90,5 +92,10 @@ urlpatterns = [
         "profile/pictures/",
         UserProfileRetrieveUpdateDeleteView.as_view(),
         name="user-profile-retrieve-update-delete",
+    ),
+    path(
+        "media/<str:file_type>/<str:file_name>/",
+        ProtectedMediaView.as_view(),
+        name="mail-protected-media",
     ),
 ]
