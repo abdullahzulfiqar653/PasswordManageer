@@ -6,6 +6,8 @@ from PasswordManager.views import (
     BulkPasswordDeleteView,
     RandomPasswordCreateView,
     PasswordRetrieveUpdateDeleteView,
+    FolderListCreateView,
+    FolderRetrieveUpdateDeleteView,
 )
 
 from main.views import (
@@ -14,6 +16,19 @@ from main.views import (
 )
 
 urlpatterns = [
+    # =====================================================
+    # Folders
+    # =====================================================
+    path(
+        "folders/",
+        FolderListCreateView.as_view(),
+        name="folde-list-create",
+    ),
+    path(
+        "folders/<str:pk>/",
+        FolderRetrieveUpdateDeleteView.as_view(),
+        name="folder-detail",
+    ),
     # =====================================================
     # Password
     # =====================================================

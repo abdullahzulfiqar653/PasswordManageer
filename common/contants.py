@@ -1,6 +1,7 @@
 MODEL_CODES = {
     # model codes for password service
     "Password": "100",
+    "Folder": "101",
     # model codes for NeuroRsa
     "KeyPair": "110",
     "Recipient": "111",

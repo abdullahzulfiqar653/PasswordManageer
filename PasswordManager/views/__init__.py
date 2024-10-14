@@ -4,10 +4,16 @@ from PasswordManager.views.password import (
     RandomPasswordCreateView,
     PasswordRetrieveUpdateDeleteView,
 )
+from PasswordManager.views.folder import (
+    FolderListCreateView,
+    FolderRetrieveUpdateDeleteView,
+)
 
 __all__ = [
     "BulkPasswordDeleteView",
     "PasswordListCreateView",
     "RandomPasswordCreateView",
     "PasswordRetrieveUpdateDeleteView",
+    "FolderListCreateView",
+    "FolderRetrieveUpdateDeleteView",
 ]
