@@ -1,5 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
+from main.views.protected_media import ProtectedMediaView
 
 from PasswordManager.views import (
     PasswordListCreateView,
@@ -61,5 +62,10 @@ urlpatterns = [
         "user/generate-pass-phrase/",
         UserSignUpView.as_view(),
         name="generate-pass-phrase",
+    ),
+    path(
+        "media/<str:file_type>/<str:file_name>/",
+        ProtectedMediaView.as_view(),
+        name="password-protected-media",
     ),
 ]
