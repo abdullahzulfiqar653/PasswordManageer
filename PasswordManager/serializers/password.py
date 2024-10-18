@@ -28,7 +28,7 @@ class PasswordSerializer(serializers.ModelSerializer):
             "updated_at",
             "content_type",
         ]
-        read_only_fields = ["updated_at"]
+        read_only_fields = ["updated_at", "content_type"]
 
     def __init__(self, *args, **kwargs):
         """
