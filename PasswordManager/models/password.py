@@ -18,6 +18,7 @@ class Password(BaseModel):
         related_name="folder_passwords",
     )
     file = models.FileField(upload_to="protected/passwords/attachments/", null=True)
+    content_type = models.CharField(max_length=100, null=True)
 
     def __str__(self):
         return self.title

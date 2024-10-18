@@ -1,3 +1,4 @@
+import mimetypes
 from rest_framework import serializers
 
 from PasswordManager.models.folder import Folder
@@ -58,5 +59,10 @@ class PasswordSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        file = validated_data.get("file", None)
+        if file:
+            validated_data["content_type"] = (
+                file.content_type or mimetypes.guess_type(file.name)[0]
+            )
         validated_data["user"] = self.context["request"].user
         return super().create(validated_data)
