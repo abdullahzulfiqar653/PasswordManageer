@@ -26,6 +26,7 @@ class PasswordSerializer(serializers.ModelSerializer):
             "file_name",
             "file_type",
             "updated_at",
+            "content_type",
         ]
         read_only_fields = ["updated_at"]
 
