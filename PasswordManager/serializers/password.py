@@ -67,3 +67,13 @@ class PasswordSerializer(serializers.ModelSerializer):
             )
         validated_data["user"] = self.context["request"].user
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        file = validated_data.get("file", None)
+        if file:
+            validated_data["content_type"] = (
+                file.content_type or mimetypes.guess_type(file.name)[0]
+            )
+        else:
+            validated_data["file"] = instance.file
+        return super().update(instance, validated_data)

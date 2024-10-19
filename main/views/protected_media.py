@@ -58,4 +58,6 @@ class ProtectedMediaView(APIView):
             raise Http404("File not found.")
 
         file_handle = default_storage.open(full_file_path, "rb")
-        return FileResponse(file_handle, content_type=obj.content_type)
+        response = FileResponse(file_handle, content_type=obj.content_type)
+        response["Content-Disposition"] = f'attachment; filename="{file_name}"'
+        return response
