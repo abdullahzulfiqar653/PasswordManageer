@@ -47,17 +47,18 @@ class PasswordSerializer(serializers.ModelSerializer):
         if obj.file:
             return "password-attachments"
 
-    def validate_title(self, value):
+    def validate(self, attr):
         user = self.context["request"].user
-        queryset = user.passwords.filter(title=value)
+        title = attr.get("title")
+        queryset = user.passwords.filter(title=title)
         error = serializers.ValidationError("An entry with this title already exists.")
         if self.instance:
-            if queryset.exclude(title=value).exist():
+            if queryset.exclude(title=title).exist():
                 raise error
         else:
             if queryset.exists():
                 raise error
-        return value
+        return attr
 
     def create(self, validated_data):
         file = validated_data.get("file", None)
