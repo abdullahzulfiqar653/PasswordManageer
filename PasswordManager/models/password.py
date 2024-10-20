@@ -24,4 +24,4 @@ class Password(BaseModel):
         return self.title
 
     class Meta:
-        unique_together = ["title", "username", "url", "user"]
+        unique_together = ["title", "user"]
