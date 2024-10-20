@@ -53,7 +53,7 @@ class PasswordSerializer(serializers.ModelSerializer):
         queryset = user.passwords.filter(title=title)
         error = serializers.ValidationError("An entry with this title already exists.")
         if self.instance:
-            if queryset.exclude(title=title).exists():
+            if queryset.exclude(id=self.instance.id).exists():
                 raise error
         else:
             if queryset.exists():
