@@ -6,7 +6,9 @@ from PasswordManager.models.password import Password
 
 
 class PasswordSerializer(serializers.ModelSerializer):
-    folder = serializers.PrimaryKeyRelatedField(queryset=Folder.objects.all())
+    folder = serializers.PrimaryKeyRelatedField(
+        queryset=Folder.objects.all(), required=False
+    )
     file = serializers.FileField(write_only=True, required=False)
     file_type = serializers.SerializerMethodField()
     file_name = serializers.SerializerMethodField()
