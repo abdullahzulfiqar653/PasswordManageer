@@ -8,10 +8,7 @@ from PasswordManager.models.password import Password
 class PasswordSerializer(serializers.ModelSerializer):
     folder = serializers.PrimaryKeyRelatedField(
         queryset=Folder.objects.all(),
-        error_messages={
-            "required": "Please select a folder.",
-            "does_not_exist": "Folder doesn't exist. Please select a valid folder.",
-        },
+        allow_null=True,
     )
     file = serializers.FileField(write_only=True, required=False)
     file_type = serializers.SerializerMethodField()
@@ -53,17 +50,17 @@ class PasswordSerializer(serializers.ModelSerializer):
         if obj.file:
             return "password-attachments"
 
-    # def validate_folder(self, value):
-    #     if not value:
-    #         raise serializers.ValidationError("Please select a folder.")
+    def validate_folder(self, value):
+        if not value:
+            raise serializers.ValidationError("Please select a folder.")
 
-    #     user = self.context["request"].user
-    #     if not user.folders.filter(id=value.id).exists():
-    #         raise serializers.ValidationError(
-    #             "Folder does'nt exist. Please select a valid folder."
-    #         )
+        user = self.context["request"].user
+        if not user.folders.filter(id=value.id).exists():
+            raise serializers.ValidationError(
+                "Folder does'nt exist. Please select a valid folder."
+            )
 
-    #     return value
+        return value
 
     def validate_title(self, value):
         user = self.context["request"].user
