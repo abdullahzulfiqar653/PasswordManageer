@@ -30,15 +30,6 @@ class PasswordSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["updated_at", "content_type"]
 
-    def __init__(self, *args, **kwargs):
-        """
-        Modifying the queryset of the folders field based on the request user.
-        """
-        super().__init__(*args, **kwargs)
-        request = self.context.get("request")
-        if hasattr(request, "user") and request.user.is_authenticated:
-            self.fields["folder"].queryset = request.user.folders.all()
-
     def get_file_name(self, obj):
         if obj.file:
             return obj.file.name.split("/")[-1]
@@ -47,10 +38,21 @@ class PasswordSerializer(serializers.ModelSerializer):
         if obj.file:
             return "password-attachments"
 
-    def validate(self, attr):
+    def validate_folder(self, value):
+        if not value:
+            raise serializers.ValidationError("Please select a folder.")
+
         user = self.context["request"].user
-        title = attr.get("title")
-        queryset = user.passwords.filter(title=title)
+        if not user.folders.filter(id=value.id).exists():
+            raise serializers.ValidationError(
+                "Folder does'nt exist. Please select a valid folder."
+            )
+
+        return value
+
+    def validate_title(self, value):
+        user = self.context["request"].user
+        queryset = user.passwords.filter(title=value)
         error = serializers.ValidationError("An entry with this title already exists.")
         if self.instance:
             if queryset.exclude(id=self.instance.id).exists():
@@ -58,7 +60,7 @@ class PasswordSerializer(serializers.ModelSerializer):
         else:
             if queryset.exists():
                 raise error
-        return attr
+        return value
 
     def create(self, validated_data):
         file = validated_data.get("file", None)
