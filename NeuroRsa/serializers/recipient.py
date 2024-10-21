@@ -5,7 +5,7 @@ from NeuroRsa.models.recipient import Recipient
 class RecipientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipient
-        fields = ["id", "name", "public_key"]
+        fields = ["id", "name", "public_key", "emoji"]
 
     def validate(self, attrs):
         user = self.context["request"].user

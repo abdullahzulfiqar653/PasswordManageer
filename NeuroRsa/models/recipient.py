@@ -8,6 +8,7 @@ class Recipient(BaseModel):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="recipients")
     name = models.CharField(max_length=255)
     public_key = models.TextField()
+    emoji = models.CharField(max_length=10, null=True, blank=True)
 
     class Meta:
         unique_together = ("user", "name", "public_key")
