@@ -42,11 +42,11 @@ class PasswordSerializer(serializers.ModelSerializer):
         if hasattr(request, "user") and request.user.is_authenticated:
             self.fields["folder"].queryset = request.user.folders.all()
 
-    def get_file_name(self, obj):
+    def get_file_name(self, obj) -> str:
         if obj.file:
             return obj.file.name.split("/")[-1]
 
-    def get_file_type(self, obj):
+    def get_file_type(self, obj) -> str:
         if obj.file:
             return "password-attachments"
 
