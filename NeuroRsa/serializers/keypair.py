@@ -26,7 +26,7 @@ class KeyPairSerializer(serializers.ModelSerializer):
         user = self.context.get("request").user
         if KeyPair.objects.filter(user_id=user, name=name).exists():
             raise serializers.ValidationError(
-                "An keypair with this user and name already exists."
+                "An keypair with this name already exists."
             )
         return name
 

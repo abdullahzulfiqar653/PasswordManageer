@@ -11,7 +11,7 @@ class Recipient(BaseModel):
     emoji = models.CharField(max_length=10, null=True, blank=True)
 
     class Meta:
-        unique_together = ("user", "name", "public_key")
+        unique_together = ("user", "name")
 
     def __str__(self):
         return f"{self.user.username} - {self.name}"
