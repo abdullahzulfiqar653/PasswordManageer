@@ -10,7 +10,7 @@ class RecipientSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         user = self.context["request"].user
         queryset = Recipient.objects.filter(user=user, name=attrs.get("name"))
-        if self.isinstance:
+        if self.instance:
             queryset.exclude(id=self.instance.id)
         if queryset.exists():
             raise serializers.ValidationError("Recipient with this name already exists")
