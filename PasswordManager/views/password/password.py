@@ -10,7 +10,7 @@ class PasswordListCreateView(generics.ListCreateAPIView):
     filterset_fields = ["folder"]
 
     def get_queryset(self):
-        return self.request.user.passwords.all()
+        return self.request.user.passwords.all().order_by("-created_at")
 
 
 class PasswordRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):

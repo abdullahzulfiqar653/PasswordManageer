@@ -8,7 +8,7 @@ class FolderListCreateView(generics.ListCreateAPIView):
     search_fields = ["title"]
 
     def get_queryset(self):
-        return self.request.user.folders.all()
+        return self.request.user.folders.all().order_by("-created_at")
 
 
 class FolderRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):

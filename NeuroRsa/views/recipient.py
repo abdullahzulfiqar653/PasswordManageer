@@ -8,7 +8,7 @@ class RecipientListCreateView(generics.ListCreateAPIView):
     search_fields = ["name"]
 
     def get_queryset(self):
-        return self.request.user.recipients.all()
+        return self.request.user.recipients.all().order_by("-created_at")
 
 
 class RecipientRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):

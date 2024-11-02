@@ -9,7 +9,7 @@ class KeyPairListCreateView(generics.ListCreateAPIView):
     search_fields = ["name"]
 
     def get_queryset(self):
-        return self.request.user.keypairs.all()
+        return self.request.user.keypairs.all().order_by("-created_at")
 
 
 class KeyPairRetrieveUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
