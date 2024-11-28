@@ -31,6 +31,29 @@ class EmailSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "total_size"]
 
+    def validate(self, attrs):
+        email_type = attrs.get("email_type")
+        body = attrs.get("body", "").strip()
+        subject = attrs.get("subject", "").strip()
+        recipients = attrs.get("recipients", [])
+
+        if not recipients or len(recipients) == 0:
+            raise serializers.ValidationError(
+                {"recipients": "At least one recipient is required."}
+            )
+
+        if not body and email_type == Email.SENT:
+            raise serializers.ValidationError(
+                {"body": "The email body cannot be empty."}
+            )
+
+        if not subject and email_type == Email.SENT:
+            raise serializers.ValidationError(
+                {"subject": "The email body cannot be empty."}
+            )
+
+        return super().validate(attrs)
+
     def create(self, validated_data):
         request = self.context.get("request")
         recipients_data = validated_data.pop("recipients", [])
@@ -42,7 +65,10 @@ class EmailSerializer(serializers.ModelSerializer):
             )
 
         email = Email.objects.create(
-            **validated_data, primary_email_type=email_type, mailbox=request.mailbox
+            **validated_data,
+            primary_email_type=email_type,
+            mailbox=request.mailbox,
+            is_seen=True,
         )
         recipients = [
             EmailRecipient(

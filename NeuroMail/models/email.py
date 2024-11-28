@@ -20,8 +20,8 @@ class Email(BaseModel):
     mailbox = models.ForeignKey(
         MailBox, on_delete=models.CASCADE, related_name="emails"
     )
-    subject = models.CharField(max_length=255)
-    body = models.TextField()
+    subject = models.CharField(max_length=255, blank=True)
+    body = models.TextField(blank=True)
     email_type = models.CharField(
         max_length=10, choices=EMAIL_TYPE_CHOICES, default=DRAFT
     )
