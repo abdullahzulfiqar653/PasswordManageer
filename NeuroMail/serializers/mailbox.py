@@ -58,7 +58,9 @@ class MailboxSerializer(serializers.ModelSerializer):
         )
         if user.mailboxes.count() >= mailbox_allowed:
             raise exceptions.PermissionDenied(
-                "Your mailboxes quota is full. Upgrade your subscription to create more mailboxes."
+                {
+                    "error": ["Your mailboxes quota is full. Upgrade your subscription to create more mailboxes."]
+                }
             )
 
         success, msg = create_mail_box(local_part, password, domain.name)
