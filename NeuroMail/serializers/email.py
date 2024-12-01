@@ -37,20 +37,21 @@ class EmailSerializer(serializers.ModelSerializer):
         subject = attrs.get("subject", "").strip()
         recipients = attrs.get("recipients", [])
 
-        if not recipients or len(recipients) == 0:
-            raise serializers.ValidationError(
-                {"recipients": "At least one recipient is required."}
-            )
+        if email_type == Email.SENT:
+            if not recipients or len(recipients) == 0:
+                raise serializers.ValidationError(
+                    {"recipients": "At least one recipient is required."}
+                )
 
-        if not body and email_type == Email.SENT:
-            raise serializers.ValidationError(
-                {"body": "The email body cannot be empty."}
-            )
+            if not body:
+                raise serializers.ValidationError(
+                    {"body": "The email body cannot be empty."}
+                )
 
-        if not subject and email_type == Email.SENT:
-            raise serializers.ValidationError(
-                {"subject": "The email body cannot be empty."}
-            )
+            if not subject:
+                raise serializers.ValidationError(
+                    {"subject": "The email subject cannot be empty."}
+                )
 
         return super().validate(attrs)
 
