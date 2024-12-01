@@ -5,6 +5,8 @@ from NeuroMail.serializers.email_extension import EmailExtensionSerializer
 
 
 class EmailExtensionListView(generics.ListAPIView):
+    """This api is to get all available extensions to create mails like domain.com"""
+
     queryset = EmailExtension.objects.all()
     serializer_class = EmailExtensionSerializer
 

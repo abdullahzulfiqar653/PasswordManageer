@@ -9,6 +9,8 @@ from NeuroMail.utils.mail_server_apis import delete_mail_box
 
 
 class MailBoxExistenceCheckView(generics.CreateAPIView):
+    """This Api is for checking that if email user choosed is available or taken."""
+
     serializer_class = MailboxSerializer
 
     def get_serializer_context(self):
@@ -29,6 +31,10 @@ class MailBoxExistenceCheckView(generics.CreateAPIView):
 
 
 class MailBoxListCreateView(generics.ListCreateAPIView):
+    """
+    MailBox api to list user mailboxes or to create.
+    """
+
     serializer_class = MailboxSerializer
 
     def get_queryset(self):
@@ -36,6 +42,10 @@ class MailBoxListCreateView(generics.ListCreateAPIView):
 
 
 class MailBoxRetrieveDeleteView(generics.RetrieveDestroyAPIView):
+    """
+    MailBox APIs to delete list of mailbox or to retrieve a specific mailbox of user.
+    """
+
     serializer_class = MailboxSerializer
 
     def get_queryset(self):

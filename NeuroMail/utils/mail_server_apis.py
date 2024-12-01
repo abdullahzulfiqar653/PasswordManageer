@@ -23,7 +23,7 @@ def create_mail_box(local_part, password, domain):
 
     response = requests.post(url, headers=headers, json=data)
     error = (
-        "Unable to create mailbox please try again or contact Neuromail help center."
+        ["Unable to create mailbox please try again or contact Neuromail help center."]
     )
     if response.status_code == 200:
         try:
@@ -33,7 +33,7 @@ def create_mail_box(local_part, password, domain):
                 if item["type"] == "success":
                     email_added = item["msg"][1]  # The email address that was added
                     return True, {
-                        "success": f"Mailbox {email_added} created successfully.",
+                        "success": [f"Mailbox {email_added} created successfully."],
                     }
             return False, {"error": error}
         except json.JSONDecodeError:

@@ -19,6 +19,8 @@ from NeuroMail.utils.imap_server import fetch_inbox_emails
 
 
 class MailboxEmailListCreateView(generics.ListCreateAPIView):
+    """THis API used to create emails of type [sent, draft] and use to list emails of all types"""
+
     queryset = Email.objects.none()
     serializer_class = EmailSerializer
     filter_backends = [DjangoFilterBackend]
@@ -77,6 +79,8 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
 
 
 class MailboxEmailRetrieveUpdateView(generics.RetrieveUpdateAPIView):
+    """THis API use to fetch signle email data or to mark it as starred or seen"""
+
     permission_classes = [IsMailBoxOwner]
 
     def get_serializer_class(self):
@@ -90,6 +94,8 @@ class MailboxEmailRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
 
 class MailboxEmailMoveToTrashView(generics.UpdateAPIView):
+    """APIs to move emails to trash by sending list of email ids"""
+
     serializer_class = EmailTrashSerializer
     permission_classes = [IsMailBoxOwner]
 
@@ -109,6 +115,8 @@ class MailboxEmailMoveToTrashView(generics.UpdateAPIView):
 
 
 class MailboxEmailRestoreFromTrashView(generics.UpdateAPIView):
+    """APIs to restore emails from trash by sending list of email ids"""
+
     serializer_class = EmailTrashSerializer
     permission_classes = [IsMailBoxOwner]
 
