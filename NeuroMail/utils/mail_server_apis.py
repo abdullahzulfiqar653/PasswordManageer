@@ -22,9 +22,9 @@ def create_mail_box(local_part, password, domain):
     }
 
     response = requests.post(url, headers=headers, json=data)
-    error = (
-        ["Unable to create mailbox please try again or contact Neuromail help center."]
-    )
+    error = [
+        "Unable to create mailbox please try again or contact Neuromail help center."
+    ]
     if response.status_code == 200:
         try:
             # Decode the _content from bytes to string and load it as JSON
@@ -67,3 +67,20 @@ def delete_mail_box(emails):
         return False, {
             "error": "Authentication failed please try again on contact Neuromail."
         }
+
+
+def validate_mailbox(email):
+    url = f"{settings.MAIL_SERVER_BASE_URL}/get/mailbox/{email}"
+    try:
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            response_data = response.json()
+            if response_data:
+                return False, {
+                    "email": [
+                        "A mailbox with this local part and domain already exists."
+                    ]
+                }
+        return True, ""
+    except:
+        return False, {"email": ["kindly try other names or try again in few minutes"]}

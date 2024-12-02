@@ -4,7 +4,7 @@ from rest_framework import serializers
 from main.models.feature import Feature
 from NeuroMail.models.mailbox import MailBox
 from NeuroMail.models.email_extension import EmailExtension
-from NeuroMail.utils.mail_server_apis import create_mail_box
+from NeuroMail.utils.mail_server_apis import create_mail_box, validate_mailbox
 from main.utils.auth import generate_random_password
 
 
@@ -27,15 +27,11 @@ class MailboxSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         local_part = attrs.get("local_part")
         domain = attrs.get("domain")
-
-        # Combine local_part and domain to form the full email
         email = f"{local_part}@{domain.name}"
 
-        # Check if the email with this local_part and domain already exists
-        if MailBox.objects.filter(email=email).exists():
-            raise exceptions.ValidationError(
-                {"email": "An mailbox with this local part and domain already exists."}
-            )
+        success, msg = validate_mailbox(email)
+        if not success:
+            raise exceptions.ValidationError(msg)
 
         attrs["email"] = email
         return attrs
@@ -59,7 +55,9 @@ class MailboxSerializer(serializers.ModelSerializer):
         if user.mailboxes.count() >= mailbox_allowed:
             raise exceptions.PermissionDenied(
                 {
-                    "error": ["Your mailboxes quota is full. Upgrade your subscription to create more mailboxes."]
+                    "error": [
+                        "Your mailboxes quota is full. Upgrade your subscription to create more mailboxes."
+                    ]
                 }
             )
 
