@@ -1,13 +1,15 @@
+import json
 import secrets
 import mimetypes
+from django.http import QueryDict
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from NeuroMail.utils.smtp_server import send_email
 
 from NeuroMail.models.email import Email
 from NeuroMail.models.email_recipient import EmailRecipient
 from NeuroMail.models.email_attachment import EmailAttachment
-
 from NeuroMail.serializers.email_recipient import EmailRecipientSerializer
 from NeuroMail.serializers.email_attachment import EmailAttachmentSerializer
 
@@ -31,6 +33,20 @@ class EmailSerializer(serializers.ModelSerializer):
             "attachments",
         ]
         read_only_fields = ["id", "total_size"]
+
+    def run_validation(self, data):
+        if isinstance(data, QueryDict):
+            data = data.dict()
+
+        if "recipients" in data and isinstance(data["recipients"], str):
+            try:
+                data["recipients"] = json.loads(data["recipients"])
+                data["attachments"] = [
+                    {"file": file} for file in self.initial_data.getlist("attachments")
+                ]
+            except json.JSONDecodeError:
+                raise ValidationError({"recipients": "Invalid JSON format."})
+        return super().run_validation(data)
 
     def validate(self, attrs):
         email_type = attrs.get("email_type")
@@ -88,18 +104,16 @@ class EmailSerializer(serializers.ModelSerializer):
         attachments = []
         for attachment in attachments_data:
             file = attachment.get("file")
-            if file:
-                # Identify content type and filename
-                content_type, _ = mimetypes.guess_type(file.name)
-                attachments.append(
-                    EmailAttachment(
-                        id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
-                        email=email,
-                        filename=file.name,
-                        content_type=content_type or "application/octet-stream",
-                        file=file,
-                    )
+            content_type, _ = mimetypes.guess_type(file.name)
+            attachments.append(
+                EmailAttachment(
+                    id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
+                    mail=email,
+                    filename=file.name,
+                    content_type=content_type or "application/octet-stream",
+                    file=file,
                 )
+            )
         EmailAttachment.objects.bulk_create(attachments)
 
         if email_type == Email.SENT:
