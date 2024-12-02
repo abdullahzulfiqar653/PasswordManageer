@@ -23,6 +23,7 @@ class EmailSerializer(serializers.ModelSerializer):
             "body",
             "subject",
             "is_seen",
+            "created_at",
             "email_type",
             "is_starred",
             "recipients",
