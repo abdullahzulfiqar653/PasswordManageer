@@ -20,14 +20,16 @@ class EmailTrashSerializer(serializers.Serializer):
 
     def update_emails_to_trash(self):
         emails = self.validated_data["emails"]
-
         emails_to_update = []
         for email in emails:
+            email.primary_email_type = email.email_type
             email.email_type = Email.TRASH
             emails_to_update.append(email)
 
         if emails_to_update:
-            Email.objects.bulk_update(emails_to_update, ["email_type"])
+            Email.objects.bulk_update(
+                emails_to_update, ["email_type", "primary_email_type"]
+            )
         return emails
 
     def update_trash_to_emails(self):
@@ -37,7 +39,6 @@ class EmailTrashSerializer(serializers.Serializer):
             if email.email_type == Email.TRASH:
                 email.email_type = email.primary_email_type
                 emails_to_update.append(email)
-
         if emails_to_update:
             Email.objects.bulk_update(emails_to_update, ["email_type"])
         return emails

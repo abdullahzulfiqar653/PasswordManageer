@@ -33,4 +33,4 @@ class Email(BaseModel):
     total_size = models.BigIntegerField(default=0)
 
     def __str__(self):
-        return f"{self.subject} - {self.email_type} ({self.email.email})"
+        return f"{self.subject} - {self.email_type} ({self.mailbox.email})"

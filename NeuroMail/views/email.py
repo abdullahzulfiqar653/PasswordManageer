@@ -46,6 +46,7 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
                     is_seen=email["is_seen"],
                     subject=email["subject"],
                     email_type=email["email_type"],
+                    primary_email_type=email["email_type"],
                 )
                 new_emails.append(new_email)
                 for recipient in email["recipients"]:
