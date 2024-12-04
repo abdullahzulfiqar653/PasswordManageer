@@ -76,7 +76,7 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
             Email.objects.bulk_create(new_emails)
             EmailRecipient.objects.bulk_create(recipients)
             EmailAttachment.objects.bulk_create(attachments)
-        return mailbox.emails.all()
+        return mailbox.emails.all().order_by("-created_at")
 
 
 class MailboxEmailRetrieveUpdateView(generics.RetrieveUpdateAPIView):
