@@ -22,4 +22,5 @@ urlpatterns = [
     path("rsa/api/", include("NeuroRsa.urls")),
     path("mail/api/", include("NeuroMail.urls")),
     path("pm/api/", include("PasswordManager.urls")),
+    path("drive/api/", include("NeuroDrive.urls")),
 ]

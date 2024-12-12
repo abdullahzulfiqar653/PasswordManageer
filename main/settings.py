@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "main",
     "NeuroRsa",
     "NeuroMail",
+    "NeuroDrive",
     "PasswordManager",
 ]
 
