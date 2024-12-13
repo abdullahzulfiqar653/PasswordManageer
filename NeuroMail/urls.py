@@ -1,101 +1,32 @@
-from django.urls import path
-from rest_framework_simplejwt.views import TokenVerifyView
-from main.views.protected_media import ProtectedMediaView
+from drf_yasg import openapi
+from django.conf import settings
+from django.urls import path, include
+from django.conf.urls.static import static
+from drf_yasg.views import get_schema_view
+from rest_framework.permissions import AllowAny
 
 
-from NeuroMail.views import (
-    MailBoxListCreateView,
-    MailBoxExistenceCheckView,
-    MailBoxRetrieveDeleteView,
-    EmailExtensionListView,
-    EmailAiTemplateListView,
-    RephraseEmailCreateView,
-    MailboxEmailListCreateView,
-    MailboxEmailRetrieveUpdateView,
-    MailboxEmailMoveToTrashView,
-    MailboxEmailRestoreFromTrashView,
-)
-
-from main.views import (
-    UserSignInView,
-    UserSignUpView,
-    UserProfileRetrieveUpdateDeleteView,
+schema_view = get_schema_view(
+    openapi.Info(
+        title="NeuroMail",
+        default_version="v1",
+        description="API documentation for NeuroMail",
+    ),
+    public=True,
+    permission_classes=(AllowAny,),
+    patterns=[
+        path("api/", include("NeuroMail.apis")),
+    ],
 )
 
 urlpatterns = [
-    # =====================================================
-    # User
-    # =====================================================
-    path("user/token/verify/", TokenVerifyView.as_view(), name="token-verify"),
-    path("user/generate-token/", UserSignInView.as_view(), name="generate-token"),
+    path("api/", include("NeuroMail.apis")),
     path(
-        "user/generate-pass-phrase/",
-        UserSignUpView.as_view(),
-        name="generate-pass-phrase",
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
     ),
-    # =====================================================
-    # MailBox
-    # =====================================================
-    path("mailbox/", MailBoxListCreateView.as_view(), name="mailbox-list-create"),
-    path(
-        "mailbox/extensions/",
-        EmailExtensionListView.as_view(),
-        name="mailbox-extension-list",
-    ),
-    path(
-        "mailbox/existance/verify/",
-        MailBoxExistenceCheckView.as_view(),
-        name="mailbox-existance-verify",
-    ),
-    path(
-        "mailbox/<str:pk>/",
-        MailBoxRetrieveDeleteView.as_view(),
-        name="mailbox-retrive-delete",
-    ),
-    # =====================================================
-    # Email
-    # =====================================================
-    path(
-        "mailbox/<str:mailbox_id>/emails/",
-        MailboxEmailListCreateView.as_view(),
-        name="mailbox-email-list-create",
-    ),
-    path(
-        "mailbox/<str:mailbox_id>/emails/move-to-trash/",
-        MailboxEmailMoveToTrashView.as_view(),
-        name="mailbox-email-move-to-trash",
-    ),
-    path(
-        "mailbox/<str:mailbox_id>/emails/restore-from-trash/",
-        MailboxEmailRestoreFromTrashView.as_view(),
-        name="mailbox-email-restore-from-trash",
-    ),
-    path(
-        "mailbox/<str:mailbox_id>/emails/<str:pk>/",
-        MailboxEmailRetrieveUpdateView.as_view(),
-        name="mailbox-email-retrieve-update",
-    ),
-    path(
-        "emails/ai/templates/",
-        EmailAiTemplateListView.as_view(),
-        name="email-ai-templates-list",
-    ),
-    path(
-        "emails/ai/rephrase/",
-        RephraseEmailCreateView.as_view(),
-        name="rephrase-email-create",
-    ),
-    # =====================================================
-    # Profile
-    # =====================================================
-    path(
-        "profile/pictures/",
-        UserProfileRetrieveUpdateDeleteView.as_view(),
-        name="user-profile-retrieve-update-delete",
-    ),
-    path(
-        "media/<str:file_type>/<str:file_name>/",
-        ProtectedMediaView.as_view(),
-        name="mail-protected-media",
-    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -6,6 +6,7 @@ from django.core.files.base import ContentFile
 from django_filters.rest_framework import DjangoFilterBackend
 
 from NeuroMail.models.email import Email
+from NeuroMail.models.mailbox import MailBox
 from NeuroMail.models.email_recipient import EmailRecipient
 from NeuroMail.models.email_attachment import EmailAttachment
 
@@ -90,6 +91,8 @@ class MailboxEmailRetrieveUpdateView(generics.RetrieveUpdateAPIView):
         return EmailSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return MailBox.objects.none()
         mailbox = self.request.mailbox
         return mailbox.emails.all()
 

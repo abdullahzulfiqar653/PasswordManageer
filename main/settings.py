@@ -5,6 +5,7 @@ from datetime import timedelta
 
 
 env = environ.Env(
+    ENV=(str, "DEV"),
     DEBUG=(bool, False),
     SECRET_KEY=(str, "False"),
     ALLOWED_HOSTS=(list, ["localhost"]),
@@ -15,14 +16,42 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
+HOST_CONFIG = {
+    "DEV": {
+        "default": "dev.admin.azsoft.dev",
+        "NeuroRsa": "dev.api.neurorsa.xyz",
+        "NeuroMail": "dev.api.neuromail.space",
+        "NeuroDrive": "dev.api.neurodrive.com",
+        "PasswordManager": "dev.api.neuropassword.com",
+    },
+    "LIVE": {
+        "default": "live.admin.azsoft.dev",
+        "NeuroRsa": "live.api.neurorsa.xyz",
+        "NeuroMail": "live.api.neuromail.space",
+        "NeuroDrive": "live.api.neurodrive.com",
+        "PasswordManager": "live.api.neuropassword.com",
+    },
+    "LOCAL": {
+        "NeuroRsa": "rsa",
+        "NeuroMail": "mail",
+        "NeuroDrive": "drive",
+        "default": "localhost",
+        "PasswordManager": "pm",
+    },
+}
+
+ENV = env("ENV")
 DEBUG = env("DEBUG")
 SECRET_KEY = env("SECRET_KEY")
+ACTIVE_HOSTS = HOST_CONFIG[ENV]
 ALLOWED_HOSTS = env("ALLOWED_HOSTS")
+CORS_EXPOSE_HEADERS = ["Content-Disposition"]
 CORS_ORIGIN_ALLOW_ALL = env("CORS_ORIGIN_ALLOW_ALL")
 CORS_ALLOW_CREDENTIALS = env("CORS_ALLOW_CREDENTIALS")
-CORS_EXPOSE_HEADERS = ["Content-Disposition"]
 
-# Mail Server Variables
+DEFAULT_HOST = "default"
+ROOT_HOSTCONF = "main.hosts"
+
 MAIL_SERVER = env("MAIL_SERVER")
 MAIL_SERVER_API_KEY = env("MAIL_SERVER_API_KEY")
 MAIL_SERVER_BASE_URL = env("MAIL_SERVER_BASE_URL")
@@ -36,9 +65,9 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework_simplejwt",
     # 3rd party apps
-    "drf_spectacular",
-    "rest_framework",
+    "drf_yasg",
     "corsheaders",
+    "rest_framework",
     "django_filters",
     # user defined apps
     "main",
@@ -48,7 +77,9 @@ INSTALLED_APPS = [
     "PasswordManager",
 ]
 
+
 MIDDLEWARE = [
+    "django_hosts.middleware.HostsRequestMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -58,6 +89,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django_hosts.middleware.HostsResponseMiddleware",
 ]
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
@@ -83,7 +115,6 @@ TEMPLATES = [
 WSGI_APPLICATION = "main.wsgi.application"
 
 
-# Database configuration
 DATABASES = {
     "default": {
         "ENGINE": env("DB_ENGINE", default="django.db.backends.sqlite3"),
@@ -95,7 +126,6 @@ DATABASES = {
     }
 }
 
-
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -103,16 +133,20 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_PAGINATION_CLASS": "main.pagination.CustomPagination",
 }
 
-SPECTACULAR_SETTINGS = {
-    "TITLE": "Password Manager",
-    "DESCRIPTION": "This is a robust application for generating and managing passwords for various user accounts.n",
-    "VERSION": "1.0.0",
-    "SERVE_INCLUDE_SCHEMA": False,
-    "SCHEMA_PATH_PREFIX": "/api/",
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Enter your token in the format: (Bearer <apiKey>) Example: Bearer eycdefghijklmnopqrstuvwxyz...",
+        },
+    },
+    "USE_SESSION_AUTH": False,
+    "DEFAULT_AUTO_SCHEMA_CLASS": "drf_yasg.inspectors.SwaggerAutoSchema",
 }
 
 

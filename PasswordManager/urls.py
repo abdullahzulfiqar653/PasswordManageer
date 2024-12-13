@@ -1,71 +1,32 @@
-from django.urls import path
-from rest_framework_simplejwt.views import TokenVerifyView
-from main.views.protected_media import ProtectedMediaView
+from drf_yasg import openapi
+from django.conf import settings
+from django.urls import path, include
+from django.conf.urls.static import static
+from drf_yasg.views import get_schema_view
+from rest_framework.permissions import AllowAny
 
-from PasswordManager.views import (
-    PasswordListCreateView,
-    BulkPasswordDeleteView,
-    RandomPasswordCreateView,
-    PasswordRetrieveUpdateDeleteView,
-    FolderListCreateView,
-    FolderRetrieveUpdateDeleteView,
-)
 
-from main.views import (
-    UserSignInView,
-    UserSignUpView,
+schema_view = get_schema_view(
+    openapi.Info(
+        title="PasswordManager",
+        default_version="v1",
+        description="API documentation for PasswordManager",
+    ),
+    public=True,
+    permission_classes=(AllowAny,),
+    patterns=[
+        path("api/", include("PasswordManager.apis")),
+    ],
 )
 
 urlpatterns = [
-    # =====================================================
-    # Folders
-    # =====================================================
+    path("api/", include("PasswordManager.apis")),
     path(
-        "folders/",
-        FolderListCreateView.as_view(),
-        name="folde-list-create",
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
     ),
-    path(
-        "folders/<str:pk>/",
-        FolderRetrieveUpdateDeleteView.as_view(),
-        name="folder-detail",
-    ),
-    # =====================================================
-    # Password
-    # =====================================================
-    path(
-        "passwords/",
-        PasswordListCreateView.as_view(),
-        name="password-list-create",
-    ),
-    path(
-        "passwords/generate-random/",
-        RandomPasswordCreateView.as_view(),
-        name="generate-random",
-    ),
-    path(
-        "passwords/delete/",
-        BulkPasswordDeleteView.as_view(),
-        name="bulk-password-delete",
-    ),
-    path(
-        "passwords/<str:pk>/",
-        PasswordRetrieveUpdateDeleteView.as_view(),
-        name="password-detail",
-    ),
-    # =====================================================
-    # User
-    # =====================================================
-    path("user/token/verify/", TokenVerifyView.as_view(), name="token-verify"),
-    path("user/generate-token/", UserSignInView.as_view(), name="generate-token"),
-    path(
-        "user/generate-pass-phrase/",
-        UserSignUpView.as_view(),
-        name="generate-pass-phrase",
-    ),
-    path(
-        "media/<str:file_type>/<str:file_name>/",
-        ProtectedMediaView.as_view(),
-        name="password-protected-media",
-    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

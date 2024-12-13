@@ -1,71 +1,32 @@
-from django.urls import path
-from rest_framework_simplejwt.views import TokenVerifyView
+from drf_yasg import openapi
+from django.conf import settings
+from django.urls import path, include
+from django.conf.urls.static import static
+from drf_yasg.views import get_schema_view
+from rest_framework.permissions import AllowAny
 
-from NeuroRsa.views import (
-    EncryptMessageView,
-    DecryptMessageView,
-    KeyPairListCreateView,
-    MainKeyPairCreateView,
-    RecipientListCreateView,
-    KeyPairRetrieveUpdateDeleteView,
-    RecipientRetrieveUpdateDeleteView,
-)
 
-from main.views import (
-    UserSignInView,
-    UserSignUpView,
+schema_view = get_schema_view(
+    openapi.Info(
+        title="NeuroRsa",
+        default_version="v1",
+        description="API documentation for NeuroRsa",
+    ),
+    public=True,
+    permission_classes=(AllowAny,),
+    patterns=[
+        path("api/", include("NeuroRsa.apis")),
+    ],
 )
 
 urlpatterns = [
-    # =====================================================
-    # KeyPair
-    # =====================================================
+    path("api/", include("NeuroRsa.apis")),
     path(
-        "keypairs/",
-        KeyPairListCreateView.as_view(),
-        name="keypairs-list-create",
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
     ),
-    path(
-        "keypairs/main/",
-        MainKeyPairCreateView.as_view(),
-        name="main-keypairs-create",
-    ),
-    path(
-        "keypairs/<str:pk>",
-        KeyPairRetrieveUpdateDeleteView.as_view(),
-        name="keypair-retrieve-update-delete",
-    ),
-    # =====================================================
-    # Recipient
-    # =====================================================
-    path(
-        "recipients/",
-        RecipientListCreateView.as_view(),
-        name="recipient-list-create",
-    ),
-    path(
-        "recipients/encrypt-message/",
-        EncryptMessageView.as_view(),
-        name="recipients-encrypt-message",
-    ),
-    path(
-        "recipients/decrypt-message/",
-        DecryptMessageView.as_view(),
-        name="recipients-decrypt-message",
-    ),
-    path(
-        "recipients/<str:pk>/",
-        RecipientRetrieveUpdateDeleteView.as_view(),
-        name="recipient-retrieve-update-delete",
-    ),
-    # =====================================================
-    # User
-    # =====================================================
-    path("user/token/verify/", TokenVerifyView.as_view(), name="token-verify"),
-    path("user/generate-token/", UserSignInView.as_view(), name="generate-token"),
-    path(
-        "user/generate-pass-phrase/",
-        UserSignUpView.as_view(),
-        name="generate-pass-phrase",
-    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -38,6 +38,9 @@ class MailBoxListCreateView(generics.ListCreateAPIView):
     serializer_class = MailboxSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return MailBox.objects.all()
+
         return self.request.user.mailboxes.all()
 
 
@@ -49,6 +52,8 @@ class MailBoxRetrieveDeleteView(generics.RetrieveDestroyAPIView):
     serializer_class = MailboxSerializer
 
     def get_queryset(self):
+        if getattr(self, "swagger_fake_view", False):
+            return MailBox.objects.none()
         return self.request.user.mailboxes.all()
 
     def perform_destroy(self, instance: MailBox):
