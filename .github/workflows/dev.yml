@@ -1,0 +1,42 @@
+name: CI/CD > NeuroPyServices
+on:
+  push:
+    branches:
+      - dev
+
+concurrency:
+  group: dev
+  cancel-in-progress: true
+
+jobs:
+  publish-images:
+    name: Connecting to server for deployment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure SSH
+        env:
+          SSH_USER: ${{ secrets.DEV_SSH_USER }}
+          SSH_HOST: ${{ secrets.DEV_SSH_HOST }}
+          SSH_PRIVATE_KEY: ${{ secrets.DEV_SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh/
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/github
+          chmod 600 ~/.ssh/github
+          cat >>~/.ssh/config <<END
+          Host target
+            HostName $SSH_HOST
+            User $SSH_USER
+            IdentityFile ~/.ssh/github
+            LogLevel ERROR
+            StrictHostKeyChecking no
+          END
+
+      - name: Run Deploy
+        run: |
+          ssh target "\
+            cd /root/Backends/dev/NeuronusPyServices && \
+            git pull && \
+            /root/.pyenv/shims/poetry install && \
+            /root/.pyenv/shims/poetry run python manage.py migrate && \
+            supervisorctl restart neuropyservices && \
+            systemctl reload nginx"
