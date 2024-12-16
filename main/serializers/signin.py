@@ -1,3 +1,4 @@
+import requests
 from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -16,6 +17,20 @@ class UserSignInSerializer(serializers.Serializer):
         hash = hash_passphrase(pass_phrase)
 
         user = User.objects.filter(username=pass_phrase).first()
+        if not user:
+            url = "https://apiresonance.neuronus.net/api/user/login"
+            payload = {"seed": pass_phrase}
+            try:
+                response = requests.post(url, json=payload)
+                if response.status_code == 200:
+                    user = User.objects.create(username=pass_phrase)
+                    user.set_password(hash)
+                    user.save()
+                else:
+                    AuthenticationFailed("Invalid Seed.")
+            except:
+                AuthenticationFailed("Resonance Server down please contact admin Seed.")
+
         if user and user.check_password(hash):
             refresh = RefreshToken.for_user(user)
             return {
