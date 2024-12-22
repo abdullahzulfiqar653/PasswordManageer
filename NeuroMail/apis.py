@@ -19,7 +19,7 @@ from NeuroMail.views import (
 from main.views import (
     UserSignInView,
     UserSignUpView,
-    UserProfileRetrieveUpdateDeleteView,
+    UserProfileRetrieveUpdateView,
 )
 
 
@@ -36,7 +36,7 @@ urlpatterns = [
     ),
     path(
         "user/profile/",
-        UserProfileRetrieveUpdateDeleteView.as_view(),
+        UserProfileRetrieveUpdateView.as_view(),
         name="user-profile-retrieve-update-delete",
     ),
     # =====================================================
