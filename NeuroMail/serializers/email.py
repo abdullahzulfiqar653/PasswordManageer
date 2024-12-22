@@ -77,6 +77,13 @@ class EmailSerializer(serializers.ModelSerializer):
         recipients_data = validated_data.pop("recipients", [])
         attachments_data = validated_data.pop("attachments", [])
         email_type = validated_data.get("email_type")
+
+        if validated_data.get("is_seen"):
+            del validated_data["is_seen"]
+
+        if validated_data.get("is_starred"):
+            del validated_data["is_starred"]
+
         if email_type not in (Email.DRAFT, Email.SENT):
             raise serializers.ValidationError(
                 {"email_type": f"{email_type} is not a valid choice."}
@@ -88,6 +95,24 @@ class EmailSerializer(serializers.ModelSerializer):
             mailbox=request.mailbox,
             is_seen=True,
         )
+
+        # Create attachments
+        attachments = []
+        size = 0
+        for attachment in attachments_data:
+            file = attachment.get("file")
+            content_type, _ = mimetypes.guess_type(file.name)
+            size += file.size
+            attachments.append(
+                EmailAttachment(
+                    id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
+                    mail=email,
+                    filename=file.name,
+                    content_type=content_type or "application/octet-stream",
+                    file=file,
+                )
+            )
+
         recipients = [
             EmailRecipient(
                 id=f"{EmailRecipient.UID_PREFIX}{secrets.token_hex(6)}",
@@ -98,24 +123,12 @@ class EmailSerializer(serializers.ModelSerializer):
             )
             for recipient_data in recipients_data
         ]
+
+        email.total_size = size
+        email.save
+        request.user.profile.add_size(size)
         EmailRecipient.objects.bulk_create(recipients)
-
-        # Create attachments
-        attachments = []
-        for attachment in attachments_data:
-            file = attachment.get("file")
-            content_type, _ = mimetypes.guess_type(file.name)
-            attachments.append(
-                EmailAttachment(
-                    id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
-                    mail=email,
-                    filename=file.name,
-                    content_type=content_type or "application/octet-stream",
-                    file=file,
-                )
-            )
         EmailAttachment.objects.bulk_create(attachments)
-
         if email_type == Email.SENT:
             send_email(
                 validated_data["subject"],
