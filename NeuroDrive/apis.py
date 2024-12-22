@@ -5,7 +5,7 @@ from main.views.protected_media import ProtectedMediaView
 from main.views import (
     UserSignInView,
     UserSignUpView,
-    UserProfileRetrieveUpdateDeleteView,
+    UserProfileRetrieveUpdateView,
 )
 
 from NeuroDrive.views import DirectoryListCreateView, DirectoryRetrieveUpdateDestroyView
@@ -21,14 +21,14 @@ urlpatterns = [
         UserSignUpView.as_view(),
         name="generate-pass-phrase",
     ),
-    # =====================================================
-    # Profile
-    # =====================================================
     path(
-        "media/profile/pictures/",
-        UserProfileRetrieveUpdateDeleteView.as_view(),
+        "user/profile/",
+        UserProfileRetrieveUpdateView.as_view(),
         name="user-profile-retrieve-update-delete",
     ),
+    # =====================================================
+    # Media
+    # =====================================================
     path(
         "media/<str:file_type>/<str:file_name>/",
         ProtectedMediaView.as_view(),

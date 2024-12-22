@@ -36,10 +36,9 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
             new_emails = []
             recipients = []
             attachments = []
-
+            total_emails_size = 0
             for email in emails:
-                body_size = len(email["body"].encode("utf-8"))  # Size of body in bytes
-                total_size = body_size
+                total_size = len(email["body"].encode("utf-8"))  # Size of body in bytes
                 new_email = Email(
                     id=f"{Email.UID_PREFIX}{secrets.token_hex(6)}",
                     mailbox=mailbox,
@@ -74,6 +73,8 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
                         )
                     )
                 new_email.total_size = total_size
+                total_emails_size += total_size
+            self.request.user.profile.add_size(total_emails_size)
             Email.objects.bulk_create(new_emails)
             EmailRecipient.objects.bulk_create(recipients)
             EmailAttachment.objects.bulk_create(attachments)

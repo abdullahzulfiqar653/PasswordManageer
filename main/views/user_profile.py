@@ -4,7 +4,7 @@ from main.models.user_profile import UserProfile
 from main.serializers.user_profile import UserProfileSerializer
 
 
-class UserProfileRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
+class UserProfileRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     """to retrive and update profile attributes"""
 
     serializer_class = UserProfileSerializer

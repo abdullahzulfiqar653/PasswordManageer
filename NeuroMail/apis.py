@@ -34,6 +34,11 @@ urlpatterns = [
         UserSignUpView.as_view(),
         name="generate-pass-phrase",
     ),
+    path(
+        "user/profile/",
+        UserProfileRetrieveUpdateDeleteView.as_view(),
+        name="user-profile-retrieve-update-delete",
+    ),
     # =====================================================
     # MailBox
     # =====================================================
@@ -89,11 +94,6 @@ urlpatterns = [
     # =====================================================
     # Profile
     # =====================================================
-    path(
-        "profile/pictures/",
-        UserProfileRetrieveUpdateDeleteView.as_view(),
-        name="user-profile-retrieve-update-delete",
-    ),
     path(
         "media/<str:file_type>/<str:file_name>/",
         ProtectedMediaView.as_view(),
