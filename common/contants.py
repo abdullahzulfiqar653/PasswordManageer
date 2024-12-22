@@ -20,4 +20,8 @@ MODEL_CODES = {
     "SubscriptionProductFeature": "134",
     # model codes for User
     "UserProfile": "140",
+    # model codes for NeuroDrive
+    "File": "150",
+    "Directory": "151",
+    "SharedAccess": "152",
 }

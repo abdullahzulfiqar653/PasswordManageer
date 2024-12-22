@@ -8,6 +8,7 @@ from main.views import (
     UserProfileRetrieveUpdateDeleteView,
 )
 
+from NeuroDrive.views import DirectoryListCreateView, DirectoryRetrieveUpdateDestroyView
 
 urlpatterns = [
     # =====================================================
@@ -32,5 +33,16 @@ urlpatterns = [
         "media/<str:file_type>/<str:file_name>/",
         ProtectedMediaView.as_view(),
         name="mail-protected-media",
+    ),
+    # =====================================================
+    # Directories
+    # =====================================================
+    path(
+        "directories/", DirectoryListCreateView.as_view(), name="directory-list-create"
+    ),
+    path(
+        "directories/<str:pk>/",
+        DirectoryRetrieveUpdateDestroyView.as_view(),
+        name="directory-retrieve-update-destroy",
     ),
 ]
