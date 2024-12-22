@@ -15,7 +15,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def get_features_data(self, obj):
         request = self.context.get("request")
         return {
-            "total_size": obj.total_size,
+            "total_size": round(obj.total_size / (1024**3), 2),
             "size_allowed": Feature.get_feature_value(
                 Feature.Code.STORAGE_GB, request.user
             ),

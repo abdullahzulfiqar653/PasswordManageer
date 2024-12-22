@@ -16,7 +16,7 @@ class File(BaseModel):
         related_name="files",
     )
     size = models.PositiveIntegerField()  # Size in bytes
-    content = models.FileField(upload_to="protected/neurodrive/")
+    file = models.FileField(upload_to="protected/drive/attachments/")
 
     def __str__(self):
         return self.name
@@ -25,6 +25,9 @@ class File(BaseModel):
         """Move file to another folder"""
         self.folder = new_folder
         self.save()
+
+    def size_in_gb(self):
+        return self.size / (1024 * 1024 * 1024)
 
     class Meta:
         unique_together = ("owner", "name", "directory")

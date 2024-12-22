@@ -1,23 +1,25 @@
 import os
-
-from rest_framework.views import APIView
-
+from django.apps import apps
 from django.conf import settings
+from rest_framework.views import APIView
 from django.core.files.storage import default_storage
 from django.http import FileResponse, Http404, HttpResponseForbidden
 
-from NeuroMail.models import EmailAttachment
-from PasswordManager.models import Password
+from main.models.feature import Feature
 
-
+# Mapping for file types and their respective models and storage paths
 FILE_MODEL_MAP = {
     "mailbox-attachments": {
-        "model": EmailAttachment,
+        "model": apps.get_model("NeuroMail", "EmailAttachment"),
         "path": "protected/mailbox/attachments/",
     },
     "password-attachments": {
-        "model": Password,
+        "model": apps.get_model("PasswordManager", "Password"),
         "path": "protected/passwords/attachments/",
+    },
+    "drive-attachments": {
+        "model": apps.get_model("NeuroDrive", "File"),
+        "path": "protected/drive/attachments/",
     },
 }
 
@@ -29,35 +31,91 @@ class ProtectedMediaView(APIView):
     """
 
     def get(self, request, file_type, file_name):
-        file_type = FILE_MODEL_MAP.get(file_type)
-        Model = file_type["model"]
-        if not Model:
-            raise Http404("Invalid file type or Media not found.")
+        SharedAccess = apps.get_model("NeuroDrive", "SharedAccess")
+        file_type_data = FILE_MODEL_MAP.get(file_type)
 
-        try:
-            obj = Model.objects.get(file=f"{file_type['path']}{file_name}")
-        except Model.DoesNotExist:
-            raise Http404("Invalid file type or Media not found.")
+        if not file_type_data:
+            raise Http404("Invalid file type.")
 
-        error_msg_403 = "You do not have permission to access this media."
-        if hasattr(obj, "mail"):
-            if request.user != obj.mail.mailbox.user:
-                return HttpResponseForbidden(error_msg_403)
+        Model = file_type_data["model"]
+        file_path = f"{file_type_data['path']}{file_name}"
+        user = request.user
 
-        elif hasattr(obj, "user"):
-            if request.user != obj.user:
-                return HttpResponseForbidden(error_msg_403)
+        obj = self.get_media_object(Model, file_path)
+        shared_obj = self.get_shared_object(SharedAccess, file_path)
+        # Check permissions for accessing the file
+        if not self.check_user_permissions(obj, shared_obj, user):
+            raise Http404("File not found in your accessible storage.")
 
-        else:
-            return HttpResponseForbidden("Invalid permission check configuration.")
+        if file_type == "drive-attachments":
+            if not self.check_file_size(user, shared_obj, obj):
+                return HttpResponseForbidden(
+                    "File Owner needs to upgrade subscription to access this file."
+                    if shared_obj
+                    else "You need to upgrade your subscription to access this file."
+                )
 
         # Construct the full file path in the protected directory
-        full_file_path = os.path.join(settings.MEDIA_ROOT, file_type["path"], file_name)
+        full_file_path = os.path.join(
+            settings.MEDIA_ROOT, file_type_data["path"], file_name
+        )
 
         if not os.path.exists(full_file_path):
-            raise Http404("File not found.")
+            raise Http404("File not found in your accessible storage.")
 
+        # Return the file as response
         file_handle = default_storage.open(full_file_path, "rb")
         response = FileResponse(file_handle, content_type=obj.content_type)
         response["Content-Disposition"] = f'attachment; filename="{file_name}"'
         return response
+
+    def get_media_object(self, Model, file_path):
+        """Helper function to safely get the media object."""
+        try:
+            return Model.objects.get(file=file_path)
+        except Model.DoesNotExist:
+            raise Http404("Media not found.")
+
+    def get_shared_object(self, SharedAccess, file_path):
+        """Helper function to safely get the shared access object."""
+        try:
+            return SharedAccess.objects.get(item__file=file_path)
+        except SharedAccess.DoesNotExist:
+            return None
+
+    def check_user_permissions(self, obj, shared_obj, user):
+        """Helper function to check permissions for file access."""
+        error_msg_403 = "You do not have permission to access this media."
+
+        if hasattr(obj, "mail"):
+            if user != obj.mail.mailbox.user:
+                return HttpResponseForbidden(error_msg_403)
+
+        if hasattr(obj, "user"):
+            if user != obj.user:
+                return HttpResponseForbidden(error_msg_403)
+
+        if hasattr(obj, "owner"):
+            if user != obj.user or (shared_obj and user != shared_obj.user):
+                return HttpResponseForbidden(error_msg_403)
+
+        return True
+
+    def check_file_size(self, user, shared_obj, obj):
+        """Check if the file size can be accessed by the user based on their subscription."""
+        requested_id = (
+            getattr(obj, "id", None)
+            or getattr(shared_obj, "item", None)
+            and getattr(shared_obj.item, "id", None)
+        )
+        if shared_obj:
+            user = shared_obj.item.owner
+        space_allowed_in_gb = Feature.get_feature_value(Feature.Code.STORAGE_GB, user)
+        files = user.files.order_by("created_at")
+
+        # Check available space and file size
+        for file in files:
+            if file.size_in_gb() <= space_allowed_in_gb:
+                if file.id == requested_id:  # Check by file id
+                    return True
+                space_allowed_in_gb -= file.size_in_gb()
