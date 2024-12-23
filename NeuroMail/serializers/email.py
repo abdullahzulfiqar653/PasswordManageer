@@ -107,7 +107,7 @@ class EmailSerializer(serializers.ModelSerializer):
                 EmailAttachment(
                     id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
                     mail=email,
-                    filename=file.name,
+                    filename=file.name.replace(" ", "_"),
                     content_type=content_type or "application/octet-stream",
                     file=file,
                 )

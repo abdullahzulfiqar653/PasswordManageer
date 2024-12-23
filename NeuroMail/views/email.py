@@ -65,7 +65,7 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
                         EmailAttachment(
                             id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
                             mail=new_email,
-                            filename=attachment["filename"],
+                            filename=attachment["filename"].replace(" ", "_"),
                             content_type=attachment["content_type"],
                             file=ContentFile(
                                 attachment["data"], name=attachment["filename"]
