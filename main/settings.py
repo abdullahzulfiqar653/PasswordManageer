@@ -20,8 +20,8 @@ HOST_CONFIG = {
     "DEV": {
         "default": "dev.admin.azsoft.dev",
         "NeuroRsa": "dev.api.neurorsa.xyz",
+        "NeuroDrive": "drive.api.azsoft.dev",
         "NeuroMail": "dev.api.neuromail.space",
-        "NeuroDrive": "dev.api.neurodrive.com",
         "PasswordManager": "dev.api.neuropassword.com",
     },
     "LIVE": {
