@@ -17,6 +17,7 @@ class File(BaseModel):
     )
     size = models.PositiveIntegerField()  # Size in bytes
     file = models.FileField(upload_to="protected/drive/attachments/")
+    is_starred = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

@@ -8,7 +8,12 @@ from main.views import (
     UserProfileRetrieveUpdateView,
 )
 
-from NeuroDrive.views import DirectoryListCreateView, DirectoryRetrieveUpdateDestroyView
+from NeuroDrive.views import (
+    FileListCreateView,
+    DirectoryListCreateView,
+    FileRetrieveUpdateDestroyView,
+    DirectoryRetrieveUpdateDestroyView,
+)
 
 urlpatterns = [
     # =====================================================
@@ -44,5 +49,18 @@ urlpatterns = [
         "directories/<str:pk>/",
         DirectoryRetrieveUpdateDestroyView.as_view(),
         name="directory-retrieve-update-destroy",
+    ),
+    path(
+        "directories/<str:directory_id>/files/",
+        FileListCreateView.as_view(),
+        name="file-list-create",
+    ),
+    # =====================================================
+    # Files
+    # =====================================================
+    path(
+        "files/<str:pk>/",
+        FileRetrieveUpdateDestroyView.as_view(),
+        name="file-retrieve-update-destroy",
     ),
 ]
