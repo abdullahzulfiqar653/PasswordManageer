@@ -1,4 +1,5 @@
-from rest_framework import generics
+from rest_framework import generics, filters
+from django_filters.rest_framework import DjangoFilterBackend
 
 from NeuroDrive.serializers.file import FileSerializer
 from NeuroDrive.permissions import (
@@ -10,6 +11,9 @@ from NeuroDrive.permissions import (
 
 class FileListCreateView(generics.ListCreateAPIView):
     serializer_class = FileSerializer
+    search_fields = ["name"]
+    filterset_fields = ["is_starred"]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
 
     def get_permissions(self):
         """

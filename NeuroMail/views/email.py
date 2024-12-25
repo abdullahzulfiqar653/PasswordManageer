@@ -1,8 +1,8 @@
 import secrets
 
-from rest_framework import generics, status
 from rest_framework.response import Response
 from django.core.files.base import ContentFile
+from rest_framework import generics, status, filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from NeuroMail.models.email import Email
@@ -24,9 +24,10 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
 
     queryset = Email.objects.none()
     serializer_class = EmailSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ["email_type", "is_starred", "is_seen"]
+    search_fields = ["subject", "body"]
     permission_classes = [IsMailBoxOwner]
+    filterset_fields = ["email_type", "is_starred", "is_seen"]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
 
     def get_queryset(self):
         mailbox = self.request.mailbox

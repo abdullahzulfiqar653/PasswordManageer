@@ -1,4 +1,4 @@
-from rest_framework import generics
+from rest_framework import generics, filters
 
 from NeuroDrive.models.directory import Directory
 from NeuroDrive.serializers.directory import DirectorySerializer
@@ -6,6 +6,8 @@ from NeuroDrive.serializers.directory import DirectorySerializer
 
 class DirectoryListCreateView(generics.ListCreateAPIView):
     serializer_class = DirectorySerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["name", "files__name", "files__directory__name"]
 
     def get_queryset(self):
         return (
