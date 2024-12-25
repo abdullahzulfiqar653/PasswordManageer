@@ -56,8 +56,7 @@ class IsFileOwner(BasePermission):
             # Efficiently fetch the directory with the user's ownership or shared status.
             file = get_object_or_404(File, id=file_id)
             # Check if the current user is the owner or is listed in the shared_with.
-            user = request.user
-            if file.owner == user:
+            if file.owner == request.user:
                 request.file = file
                 return True
             return False

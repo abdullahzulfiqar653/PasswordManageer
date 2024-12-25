@@ -10,6 +10,7 @@ from main.views import (
 
 from NeuroDrive.views import (
     FileListCreateView,
+    FileDirecoryUpdateView,
     DirectoryListCreateView,
     FileRetrieveUpdateDestroyView,
     DirectoryRetrieveUpdateDestroyView,
@@ -54,6 +55,11 @@ urlpatterns = [
         "directories/<str:directory_id>/files/",
         FileListCreateView.as_view(),
         name="file-list-create",
+    ),
+    path(
+        "directories/<str:directory_id>/files/<str:file_id>/",
+        FileDirecoryUpdateView.as_view(),
+        name="file-directory-update",
     ),
     # =====================================================
     # Files

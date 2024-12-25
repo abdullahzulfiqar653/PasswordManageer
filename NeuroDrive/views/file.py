@@ -37,3 +37,14 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return self.request.directory.files.all().order_by("created_at")
+
+
+class FileDirecoryUpdateView(generics.UpdateAPIView):
+    serializer_class = FileSerializer
+    permission_classes = [IsFileOwner, IsDirectoryOwner]
+
+    def get_queryset(self):
+        return self.request.directory.files.all().order_by("created_at")
+
+    def get_object(self):
+        return self.request.file
