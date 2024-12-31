@@ -7,6 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from NeuroMail.utils.smtp_server import send_email
 
+from main.services.s3 import S3Service
 from NeuroMail.models.email import Email
 from NeuroMail.models.email_recipient import EmailRecipient
 from NeuroMail.models.email_attachment import EmailAttachment
@@ -95,21 +96,24 @@ class EmailSerializer(serializers.ModelSerializer):
             mailbox=request.mailbox,
             is_seen=True,
         )
+        s3_client = S3Service(f"neuromail/{email.id}")
 
         # Create attachments
         attachments = []
+        attachment_urls = []
         size = 0
         for attachment in attachments_data:
             file = attachment.get("file")
             content_type, _ = mimetypes.guess_type(file.name)
             size += file.size
+            name = file.name.replace(" ", "_")
+            attachment_urls.append(s3_client.upload_file(file, name))
             attachments.append(
                 EmailAttachment(
                     id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
                     mail=email,
-                    filename=file.name.replace(" ", "_"),
+                    filename=name,
                     content_type=content_type or "application/octet-stream",
-                    file=file,
                 )
             )
 
@@ -136,6 +140,6 @@ class EmailSerializer(serializers.ModelSerializer):
                 request.mailbox.email,
                 request.mailbox.password,
                 recipients_data,
-                [attachment.file.path for attachment in attachments],
+                attachment_urls,
             )
         return email

@@ -10,12 +10,12 @@ from NeuroMail.models.mailbox import MailBox
 from NeuroMail.models.email_recipient import EmailRecipient
 from NeuroMail.models.email_attachment import EmailAttachment
 
-
 from NeuroMail.serializers.email import EmailSerializer
 from NeuroMail.serializers.email_trash import EmailTrashSerializer
 from NeuroMail.serializers.email_starred import EmailUpdateSerializer
 
-from NeuroMail.permissions import IsMailBoxOwner
+from main.services.s3 import S3Service
+from NeuroMail.permissions import IsMailBoxOwner, IsEmailOwner
 from NeuroMail.utils.imap_server import fetch_inbox_emails
 
 
@@ -49,6 +49,8 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
                     email_type=email["email_type"],
                     primary_email_type=email["email_type"],
                 )
+                s3_client = S3Service(f"neuromail/{new_email.id}")
+
                 new_emails.append(new_email)
                 for recipient in email["recipients"]:
                     recipients.append(
@@ -62,15 +64,17 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
                 for attachment in email.get("attachments", []):
                     attachment_size = len(attachment["data"])
                     total_size += attachment_size
+                    filename = attachment["filename"].replace(" ", "_")
+                    s3_client.upload_file(
+                        ContentFile(attachment["data"], name=attachment["filename"]),
+                        filename,
+                    )
                     attachments.append(
                         EmailAttachment(
                             id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
                             mail=new_email,
-                            filename=attachment["filename"].replace(" ", "_"),
+                            filename=filename,
                             content_type=attachment["content_type"],
-                            file=ContentFile(
-                                attachment["data"], name=attachment["filename"]
-                            ),
                         )
                     )
                 new_email.total_size = total_size
@@ -139,3 +143,23 @@ class MailboxEmailRestoreFromTrashView(generics.UpdateAPIView):
                 status=status.HTTP_200_OK,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class EmailFileRetrieveView(generics.GenericAPIView):
+    permission_classes = [IsEmailOwner]
+
+    def get(self, request, *args, **kwargs):
+        attachment_id = kwargs["pk"]
+        """
+        Retrieve email attachments for a given email, generate presigned URLs for each.
+        """
+        try:
+            attachment = request.email.attachments.get(id=attachment_id)
+        except:
+            return Response(
+                {"detail": "Attachment not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+        s3_client = S3Service(f"neuromail/{request.email.id}")
+        return Response(
+            {"url": s3_client.generate_presigned_url(attachment.filename)}, status=200
+        )

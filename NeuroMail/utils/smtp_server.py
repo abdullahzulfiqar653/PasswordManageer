@@ -1,6 +1,8 @@
 import os
 import smtplib
+import requests
 from django.conf import settings
+from urllib.parse import urlparse
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
@@ -53,16 +55,26 @@ def send_email(
 
     # Attach files if any
     if attachments:
-        for file_path in attachments:
+        for url in attachments:
             try:
-                with open(file_path, "rb") as f:
-                    part = MIMEApplication(f.read(), Name=os.path.basename(file_path))
-                    part["Content-Disposition"] = (
-                        f'attachment; filename="{os.path.basename(file_path)}"'
-                    )
+                # Download the file from the presigned URL
+                response = requests.get(url)
+                if response.status_code == 200:
+                    file_content = response.content
+                    filename = os.path.basename(
+                        urlparse(url).path
+                    )  # Extract filename from the URL
+
+                    # Attach the file
+                    part = MIMEApplication(file_content, Name=filename)
+                    part["Content-Disposition"] = f'attachment; filename="{filename}"'
                     msg.attach(part)
+                else:
+                    print(
+                        f"Failed to download file from {url}, status code {response.status_code}"
+                    )
             except Exception as e:
-                print(f"Failed to attach file {file_path}: {e}")
+                print(f"Failed to attach file from URL {url}: {e}")
 
     try:
         # Connect to the server

@@ -219,6 +219,44 @@ tests-mypy = ["mypy (>=1.6)", "pytest-mypy-plugins"]
 tests-no-zope = ["attrs[tests-mypy]", "cloudpickle", "hypothesis", "pympler", "pytest (>=4.3.0)", "pytest-xdist[psutil]"]
 
 [[package]]
+name = "boto3"
+version = "1.35.90"
+description = "The AWS SDK for Python"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "boto3-1.35.90-py3-none-any.whl", hash = "sha256:b0874233057995a8f0c813f5b45a36c09630e74c43d7a7c64db2feef2915d493"},
+    {file = "boto3-1.35.90.tar.gz", hash = "sha256:dc56caaaab2157a4bfc109c88b50cd032f3ac66c06d17f8ee335b798eaf53e5c"},
+]
+
+[package.dependencies]
+botocore = ">=1.35.90,<1.36.0"
+jmespath = ">=0.7.1,<2.0.0"
+s3transfer = ">=0.10.0,<0.11.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
+
+[[package]]
+name = "botocore"
+version = "1.35.90"
+description = "Low-level, data-driven core of boto 3."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "botocore-1.35.90-py3-none-any.whl", hash = "sha256:51dcbe1b32e2ac43dac17091f401a00ce5939f76afe999081802009cce1e92e4"},
+    {file = "botocore-1.35.90.tar.gz", hash = "sha256:f007f58e8e3c1ad0412a6ddfae40ed92a7bca571c068cb959902bcf107f2ae48"},
+]
+
+[package.dependencies]
+jmespath = ">=0.7.1,<2.0.0"
+python-dateutil = ">=2.1,<3.0.0"
+urllib3 = {version = ">=1.25.4,<2.2.0 || >2.2.0,<3", markers = "python_version >= \"3.10\""}
+
+[package.extras]
+crt = ["awscrt (==0.22.0)"]
+
+[[package]]
 name = "certifi"
 version = "2024.8.30"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1042,6 +1080,17 @@ files = [
     {file = "jiter-0.5.0-cp39-none-win32.whl", hash = "sha256:368084d8d5c4fc40ff7c3cc513c4f73e02c85f6009217922d0823a48ee7adf61"},
     {file = "jiter-0.5.0-cp39-none-win_amd64.whl", hash = "sha256:ce03f7b4129eb72f1687fa11300fbf677b02990618428934662406d2a76742a1"},
     {file = "jiter-0.5.0.tar.gz", hash = "sha256:1d916ba875bcab5c5f7d927df998c4cb694d27dceddf3392e58beaf10563368a"},
+]
+
+[[package]]
+name = "jmespath"
+version = "1.0.1"
+description = "JSON Matching Expressions"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
+    {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
 ]
 
 [[package]]
@@ -1911,6 +1960,20 @@ docs = ["sphinx (>=4.5.0,<5.0.0)", "sphinx-rtd-theme", "zope.interface"]
 tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
 
 [[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+description = "Extensions to the standard Python datetime module"
+optional = false
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
+files = [
+    {file = "python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3"},
+    {file = "python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"},
+]
+
+[package.dependencies]
+six = ">=1.5"
+
+[[package]]
 name = "pytz"
 version = "2024.2"
 description = "World timezone definitions, modern and historical"
@@ -2104,6 +2167,23 @@ urllib3 = ">=1.21.1,<3"
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<6)"]
+
+[[package]]
+name = "s3transfer"
+version = "0.10.4"
+description = "An Amazon S3 Transfer Manager"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "s3transfer-0.10.4-py3-none-any.whl", hash = "sha256:244a76a24355363a68164241438de1b72f8781664920260c48465896b712a41e"},
+    {file = "s3transfer-0.10.4.tar.gz", hash = "sha256:29edc09801743c21eb5ecbc617a152df41d3c287f67b615f73e5f750583666a7"},
+]
+
+[package.dependencies]
+botocore = ">=1.33.2,<2.0a.0"
+
+[package.extras]
+crt = ["botocore[crt] (>=1.33.2,<2.0a.0)"]
 
 [[package]]
 name = "shortuuid"
@@ -2544,4 +2624,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "ddf441322b4efe7c2ecbfab9b057391e141f7dcda852f9aa15d5fb2340af2022"
+content-hash = "ec2c2af44c94340224a5c8c0a36a4565ec6ff86d5a2396402bf634d2950b2655"

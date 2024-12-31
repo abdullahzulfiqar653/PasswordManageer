@@ -4,6 +4,7 @@ from NeuroMail.views.mailbox import (
     MailBoxExistenceCheckView,
 )
 from NeuroMail.views.email import (
+    EmailFileRetrieveView,
     MailboxEmailListCreateView,
     MailboxEmailMoveToTrashView,
     MailboxEmailRetrieveUpdateView,
@@ -24,4 +25,5 @@ __all__ = [
     "MailboxEmailMoveToTrashView",
     "MailboxEmailRestoreFromTrashView",
     "MailboxEmailRetrieveUpdateView",
+    "EmailFileRetrieveView",
 ]

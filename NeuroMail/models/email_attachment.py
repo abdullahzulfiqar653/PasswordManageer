@@ -10,7 +10,6 @@ class EmailAttachment(BaseModel):
     )
     filename = models.CharField(max_length=255)
     content_type = models.CharField(max_length=100)
-    file = models.FileField(upload_to="protected/mailbox/attachments/")
 
     def __str__(self):
         return f"Attachment for {self.mail.subject} ({self.filename})"

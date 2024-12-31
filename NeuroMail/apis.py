@@ -5,6 +5,7 @@ from main.views.protected_media import ProtectedMediaView
 
 from NeuroMail.views import (
     MailBoxListCreateView,
+    EmailFileRetrieveView,
     EmailExtensionListView,
     EmailAiTemplateListView,
     RephraseEmailCreateView,
@@ -80,6 +81,11 @@ urlpatterns = [
         "mailbox/<str:mailbox_id>/emails/<str:pk>/",
         MailboxEmailRetrieveUpdateView.as_view(),
         name="mailbox-email-retrieve-update",
+    ),
+    path(
+        "emails/<str:email_id>/attachments/<str:pk>/",
+        EmailFileRetrieveView.as_view(),
+        name="email-file-retrieve",
     ),
     path(
         "emails/ai/templates/",

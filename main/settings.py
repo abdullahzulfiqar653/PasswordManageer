@@ -1,4 +1,5 @@
 import os
+import boto3
 import environ
 from pathlib import Path
 from datetime import timedelta
@@ -55,6 +56,15 @@ ROOT_HOSTCONF = "main.hosts"
 MAIL_SERVER = env("MAIL_SERVER")
 MAIL_SERVER_API_KEY = env("MAIL_SERVER_API_KEY")
 MAIL_SERVER_BASE_URL = env("MAIL_SERVER_BASE_URL")
+
+S3_CLIENT = boto3.client(
+    "s3",
+    region_name=env("DIGITALOCEAN_REGION"),
+    endpoint_url=env("DIGITALOCEAN_BUCKET_URL"),
+    aws_access_key_id=env("DIGITALOCEAN_ACCESS_KEY"),
+    aws_secret_access_key=env("DIGITALOCEAN_BUCKET_SECRET_KEY"),
+)
+DIGITALOCEAN_SPACE_NAME = env("DIGITALOCEAN_SPACE_NAME")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
