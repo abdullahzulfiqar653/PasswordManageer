@@ -8,6 +8,7 @@ from NeuroMail.models.mailbox import MailBox
 from NeuroMail.serializers.email import EmailSerializer
 from NeuroMail.serializers.email_trash import EmailTrashSerializer
 from NeuroMail.serializers.email_starred import EmailUpdateSerializer
+from NeuroMail.serializers.email_attachment import EmailAttachmentSerializer
 
 from main.services.s3 import S3Service
 from NeuroMail.permissions import IsMailBoxOwner, IsEmailOwner
@@ -90,8 +91,10 @@ class MailboxEmailRestoreFromTrashView(generics.UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class EmailFileRetrieveView(generics.GenericAPIView):
+class EmailFileRetrieveView(generics.RetrieveAPIView):
+    queryset = Email.objects.all()
     permission_classes = [IsEmailOwner]
+    serializer_class = EmailAttachmentSerializer
 
     def get(self, request, *args, **kwargs):
         attachment_id = kwargs["pk"]
