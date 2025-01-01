@@ -1,16 +1,21 @@
-import os
 from rest_framework import serializers
+
+from main.services.s3 import S3Service
 
 from main.models.feature import Feature
 from main.models.user_profile import UserProfile
 
+client = S3Service()
+
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField()
     features_data = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False, write_only=True)
 
     class Meta:
         model = UserProfile
-        fields = ["id", "image", "features_data"]
+        fields = ["id", "image", "features_data", "url"]
 
     def get_features_data(self, obj):
         request = self.context.get("request")
@@ -25,8 +30,16 @@ class UserProfileSerializer(serializers.ModelSerializer):
             ),
         }
 
+    def get_url(self, obj):
+        key = f"profile/{obj.id}/{obj.image_name}"
+        return client.generate_presigned_url(key, 604800)
+
     def update(self, instance, validated_data):
-        if validated_data.get("image", None) and instance.image:
-            if os.path.isfile(instance.image.path):
-                os.remove(instance.image.path)
+        image = validated_data.get("image", None)
+        profile_id = self.context.get("request").user.profile.id
+
+        if image:
+            image_key = f"profile/{profile_id}/{image.name.replace(' ', '_')}"
+            client.upload_file(image, image_key)
+            validated_data["image_name"] = image.name.replace(" ", "_")
         return super().update(instance, validated_data)

@@ -6,7 +6,7 @@ from main.models.abstract.base import BaseModel
 
 class UserProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    image = models.ImageField(upload_to="public/user/profile/", null=True)
+    image_name = models.CharField(max_length=256, null=True, blank=True)
     total_size = models.PositiveBigIntegerField(default=0)
 
     def add_size(self, size):
