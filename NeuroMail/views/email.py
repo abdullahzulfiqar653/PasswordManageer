@@ -1,14 +1,9 @@
-import secrets
-
 from rest_framework.response import Response
-from django.core.files.base import ContentFile
 from rest_framework import generics, status, filters
 from django_filters.rest_framework import DjangoFilterBackend
 
 from NeuroMail.models.email import Email
 from NeuroMail.models.mailbox import MailBox
-from NeuroMail.models.email_recipient import EmailRecipient
-from NeuroMail.models.email_attachment import EmailAttachment
 
 from NeuroMail.serializers.email import EmailSerializer
 from NeuroMail.serializers.email_trash import EmailTrashSerializer
@@ -16,7 +11,7 @@ from NeuroMail.serializers.email_starred import EmailUpdateSerializer
 
 from main.services.s3 import S3Service
 from NeuroMail.permissions import IsMailBoxOwner, IsEmailOwner
-from NeuroMail.utils.imap_server import fetch_inbox_emails
+from NeuroMail.utils.reciever import get_recieved_emails
 
 
 class MailboxEmailListCreateView(generics.ListCreateAPIView):
@@ -33,56 +28,7 @@ class MailboxEmailListCreateView(generics.ListCreateAPIView):
         mailbox = self.request.mailbox
         email_type = self.request.query_params.get("email_type")
         if email_type == Email.INBOX:
-            emails = fetch_inbox_emails(mailbox.email, mailbox.password)
-            new_emails = []
-            recipients = []
-            attachments = []
-            total_emails_size = 0
-            for email in emails:
-                total_size = len(email["body"].encode("utf-8"))  # Size of body in bytes
-                new_email = Email(
-                    id=f"{Email.UID_PREFIX}{secrets.token_hex(6)}",
-                    mailbox=mailbox,
-                    body=email["body"],
-                    is_seen=email["is_seen"],
-                    subject=email["subject"],
-                    email_type=email["email_type"],
-                    primary_email_type=email["email_type"],
-                )
-                s3_client = S3Service(f"neuromail/{new_email.id}")
-
-                new_emails.append(new_email)
-                for recipient in email["recipients"]:
-                    recipients.append(
-                        EmailRecipient(
-                            id=f"{EmailRecipient.UID_PREFIX}{secrets.token_hex(6)}",
-                            mail=new_email,
-                            **recipient,
-                        )
-                    )
-                # Create attachments
-                for attachment in email.get("attachments", []):
-                    attachment_size = len(attachment["data"])
-                    total_size += attachment_size
-                    filename = attachment["filename"].replace(" ", "_")
-                    s3_client.upload_file(
-                        ContentFile(attachment["data"], name=attachment["filename"]),
-                        filename,
-                    )
-                    attachments.append(
-                        EmailAttachment(
-                            id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
-                            mail=new_email,
-                            filename=filename,
-                            content_type=attachment["content_type"],
-                        )
-                    )
-                new_email.total_size = total_size
-                total_emails_size += total_size
-            self.request.user.profile.add_size(total_emails_size)
-            Email.objects.bulk_create(new_emails)
-            EmailRecipient.objects.bulk_create(recipients)
-            EmailAttachment.objects.bulk_create(attachments)
+            get_recieved_emails(mailbox, self.request.user)
         return mailbox.emails.all().order_by("-created_at")
 
 
@@ -99,8 +45,7 @@ class MailboxEmailRetrieveUpdateView(generics.RetrieveUpdateAPIView):
     def get_queryset(self):
         if getattr(self, "swagger_fake_view", False):
             return MailBox.objects.none()
-        mailbox = self.request.mailbox
-        return mailbox.emails.all()
+        return self.request.mailbox.emails.all()
 
 
 class MailboxEmailMoveToTrashView(generics.UpdateAPIView):
@@ -159,7 +104,6 @@ class EmailFileRetrieveView(generics.GenericAPIView):
             return Response(
                 {"detail": "Attachment not found."}, status=status.HTTP_404_NOT_FOUND
             )
-        s3_client = S3Service(f"neuromail/{request.email.id}")
-        return Response(
-            {"url": s3_client.generate_presigned_url(attachment.filename)}, status=200
-        )
+        s3_client = S3Service()
+        s3_key = f"neuromail/{request.email.id}/{attachment.filename}"
+        return Response({"url": s3_client.generate_presigned_url(s3_key)}, status=200)

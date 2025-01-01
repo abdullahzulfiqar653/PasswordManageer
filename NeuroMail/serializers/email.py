@@ -9,6 +9,7 @@ from NeuroMail.utils.smtp_server import send_email
 
 from main.services.s3 import S3Service
 from NeuroMail.models.email import Email
+from NeuroMail.threads import EmailSendThread
 from NeuroMail.models.email_recipient import EmailRecipient
 from NeuroMail.models.email_attachment import EmailAttachment
 from NeuroMail.serializers.email_recipient import EmailRecipientSerializer
@@ -96,9 +97,7 @@ class EmailSerializer(serializers.ModelSerializer):
             mailbox=request.mailbox,
             is_seen=True,
         )
-        s3_client = S3Service(f"neuromail/{email.id}")
-
-        # Create attachments
+        s3_client = S3Service()
         attachments = []
         attachment_urls = []
         size = 0
@@ -107,7 +106,8 @@ class EmailSerializer(serializers.ModelSerializer):
             content_type, _ = mimetypes.guess_type(file.name)
             size += file.size
             name = file.name.replace(" ", "_")
-            attachment_urls.append(s3_client.upload_file(file, name))
+            s3_key = f"neuromail/{email.id}/{name}"
+            attachment_urls.append(s3_client.upload_file(file, s3_key))
             attachments.append(
                 EmailAttachment(
                     id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
@@ -134,12 +134,14 @@ class EmailSerializer(serializers.ModelSerializer):
         EmailRecipient.objects.bulk_create(recipients)
         EmailAttachment.objects.bulk_create(attachments)
         if email_type == Email.SENT:
-            send_email(
+            EmailSendThread(
+                send_email,
                 validated_data["subject"],
                 validated_data["body"],
                 request.mailbox.email,
                 request.mailbox.password,
                 recipients_data,
                 attachment_urls,
-            )
+            ).start()
+
         return email

@@ -24,11 +24,12 @@ class EmailTrashSerializer(serializers.Serializer):
         for email in emails:
             email.primary_email_type = email.email_type
             email.email_type = Email.TRASH
+            email.is_starred = False
             emails_to_update.append(email)
 
         if emails_to_update:
             Email.objects.bulk_update(
-                emails_to_update, ["email_type", "primary_email_type"]
+                emails_to_update, ["email_type", "primary_email_type", "is_starred"]
             )
         return emails
 
