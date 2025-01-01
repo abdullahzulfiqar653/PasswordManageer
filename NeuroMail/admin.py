@@ -4,8 +4,8 @@ from django.utils.html import format_html
 
 
 class EmailAdmin(admin.ModelAdmin):
-    # List view customization
     list_display = (
+        "id",
         "subject",
         "email_type",
         "primary_email_type",
@@ -25,7 +25,7 @@ class EmailAdmin(admin.ModelAdmin):
     mailbox_email.short_description = "Mailbox Email"
 
     # Fields that are searchable in the admin list view
-    search_fields = ("subject", "email_type", "mailbox__email")
+    search_fields = ("id", "subject", "email_type", "mailbox__email")
 
     # Adding filters in the sidebar for easier navigation
     list_filter = ("email_type", "is_starred", "is_seen")
