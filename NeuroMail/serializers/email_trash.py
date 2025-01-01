@@ -22,7 +22,6 @@ class EmailTrashSerializer(serializers.Serializer):
         emails = self.validated_data["emails"]
         emails_to_update = []
         for email in emails:
-            email.primary_email_type = email.email_type
             email.email_type = Email.TRASH
             email.is_starred = False
             emails_to_update.append(email)
