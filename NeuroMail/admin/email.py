@@ -1,6 +1,22 @@
 from django.contrib import admin
-from NeuroMail.models.email import Email
 from django.utils.html import format_html
+from NeuroMail.models import Email, EmailAttachment, EmailRecipient
+
+
+class EmailAttachmentInline(admin.TabularInline):
+    model = EmailAttachment
+    extra = 0  # No extra empty rows
+    fields = ("filename", "content_type")
+    readonly_fields = ("filename", "content_type")
+    show_change_link = True
+
+
+class EmailRecipientInline(admin.TabularInline):
+    model = EmailRecipient
+    extra = 0  # No extra empty rows
+    fields = ("email", "name", "recipient_type")
+    readonly_fields = ("email", "name", "recipient_type")
+    show_change_link = True
 
 
 class EmailAdmin(admin.ModelAdmin):
@@ -16,7 +32,6 @@ class EmailAdmin(admin.ModelAdmin):
         "mailbox_email",
     )
 
-    # Adding a custom method to display mailbox email
     def mailbox_email(self, obj):
         return format_html(
             "<a href='mailto:{}'>{}</a>", obj.mailbox.email, obj.mailbox.email
@@ -24,13 +39,9 @@ class EmailAdmin(admin.ModelAdmin):
 
     mailbox_email.short_description = "Mailbox Email"
 
-    # Fields that are searchable in the admin list view
     search_fields = ("id", "subject", "email_type", "mailbox__email")
-
-    # Adding filters in the sidebar for easier navigation
     list_filter = ("email_type", "is_starred", "is_seen")
 
-    # Fields that are displayed on the detail view/edit page
     fieldsets = (
         (
             None,
@@ -49,16 +60,12 @@ class EmailAdmin(admin.ModelAdmin):
         ),
     )
 
-    # Read-only fields
     readonly_fields = ("total_size",)
+    actions = ["mark_as_seen", "mark_as_starred"]
 
-    # Customize form to make sure specific fields are displayed in a particular order
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         return form
-
-    # Optionally, you can add a method for actions like marking emails as seen or starred
-    actions = ["mark_as_seen", "mark_as_starred"]
 
     def mark_as_seen(self, request, queryset):
         queryset.update(is_seen=True)
@@ -69,6 +76,8 @@ class EmailAdmin(admin.ModelAdmin):
         queryset.update(is_starred=True)
 
     mark_as_starred.short_description = "Mark selected emails as starred"
+
+    inlines = [EmailAttachmentInline, EmailRecipientInline]
 
 
 # Register the model with the custom admin class
