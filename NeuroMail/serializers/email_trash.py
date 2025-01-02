@@ -45,7 +45,5 @@ class EmailTrashSerializer(serializers.Serializer):
 
     def update_trash_to_delete(self):
         emails = self.validated_data["emails"]
-        Email.objects.filter(
-            id__in=[email.id for email in emails if email.email_type == Email.TRASH]
-        ).delete()
+        Email.objects.filter(id__in=[email.id for email in emails]).delete()
         return emails
