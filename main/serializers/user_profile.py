@@ -31,8 +31,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         }
 
     def get_url(self, obj):
-        key = f"profile/{obj.id}/{obj.image_name}"
-        return client.generate_presigned_url(key, 604800)
+        if obj.image_name:
+            key = f"profile/{obj.id}/{obj.image_name}"
+            return client.generate_presigned_url(key, 604800)
 
     def update(self, instance, validated_data):
         image = validated_data.get("image", None)
