@@ -91,6 +91,30 @@ class MailboxEmailRestoreFromTrashView(generics.UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class MailboxEmailDeleteFromTrashView(generics.UpdateAPIView):
+    """APIs to delete emails from trash by sending list of email ids"""
+
+    serializer_class = EmailTrashSerializer
+    permission_classes = [IsMailBoxOwner]
+
+    def update(self, request, *args, **kwargs):
+        mailbox = self.request.mailbox
+        serializer = self.get_serializer(
+            data=request.data, context={"request": request, "mailbox": mailbox}
+        )
+
+        if serializer.is_valid():
+            serializer.update_trash_to_delete()
+            return Response(
+                {"message": "Emails Deleted successfully"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        return Response(
+            {"error": "unable to delete emails, please try again."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+
 class EmailFileRetrieveView(generics.RetrieveAPIView):
     queryset = Email.objects.all()
     permission_classes = [IsEmailOwner]

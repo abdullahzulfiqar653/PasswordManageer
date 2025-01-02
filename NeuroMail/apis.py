@@ -14,6 +14,7 @@ from NeuroMail.views import (
     MailboxEmailListCreateView,
     MailboxEmailMoveToTrashView,
     MailboxEmailRetrieveUpdateView,
+    MailboxEmailDeleteFromTrashView,
     MailboxEmailRestoreFromTrashView,
 )
 
@@ -76,6 +77,11 @@ urlpatterns = [
         "mailbox/<str:mailbox_id>/emails/restore-from-trash/",
         MailboxEmailRestoreFromTrashView.as_view(),
         name="mailbox-email-restore-from-trash",
+    ),
+    path(
+        "mailbox/<str:mailbox_id>/emails/delete-from-trash/",
+        MailboxEmailDeleteFromTrashView.as_view(),
+        name="mailbox-email-delete-from-trash",
     ),
     path(
         "mailbox/<str:mailbox_id>/emails/<str:pk>/",
