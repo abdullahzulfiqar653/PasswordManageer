@@ -32,8 +32,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     def get_url(self, obj):
         if obj.image_name:
-            key = f"profile/{obj.id}/{obj.image_name}"
-            return client.generate_presigned_url(key, 604800)
+            return client.generate_presigned_url(obj.image_name, 604800)
 
     def update(self, instance, validated_data):
         image = validated_data.get("image", None)
@@ -41,6 +40,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
         if image:
             image_key = f"profile/{profile_id}/{image.name.replace(' ', '_')}"
-            client.upload_file(image, image_key)
-            validated_data["image_name"] = image.name.replace(" ", "_")
+            s3_url = client.upload_file(image, image_key)
+            validated_data["image_name"] = s3_url
         return super().update(instance, validated_data)

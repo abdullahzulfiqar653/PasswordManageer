@@ -132,5 +132,6 @@ class EmailFileRetrieveView(generics.RetrieveAPIView):
                 {"detail": "Attachment not found."}, status=status.HTTP_404_NOT_FOUND
             )
         s3_client = S3Service()
-        s3_key = f"neuromail/{request.email.id}/{attachment.filename}"
-        return Response({"url": s3_client.generate_presigned_url(s3_key)}, status=200)
+        return Response(
+            {"url": s3_client.generate_presigned_url(attachment.s3_url)}, status=200
+        )

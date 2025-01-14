@@ -8,6 +8,7 @@ class EmailAttachment(BaseModel):
     mail = models.ForeignKey(
         Email, on_delete=models.CASCADE, related_name="attachments"
     )
+    s3_url = models.CharField(max_length=256)
     filename = models.CharField(max_length=255)
     content_type = models.CharField(max_length=100)
 

@@ -42,13 +42,14 @@ def get_recieved_emails(mailbox, user):
                 total_size += attachment_size
                 filename = attachment["filename"].replace(" ", "_")
                 s3_key = f"neuromail/{new_email.id}/{filename}"
-                s3_client.upload_file(
+                s3_url = s3_client.upload_file(
                     ContentFile(attachment["data"], name=attachment["filename"]),
                     s3_key,
                 )
                 attachments.append(
                     EmailAttachment(
                         id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
+                        s3_url=s3_url,
                         mail=new_email,
                         filename=filename,
                         content_type=attachment["content_type"],
