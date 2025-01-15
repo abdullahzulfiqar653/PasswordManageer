@@ -9,7 +9,7 @@ from main.views import (
 )
 
 from NeuroDrive.views import (
-    FileListCreateView,
+    DirectoryFileListCreateView,
     FileDirecoryUpdateView,
     DirectoryListCreateView,
     FileRetrieveUpdateDestroyView,
@@ -53,7 +53,7 @@ urlpatterns = [
     ),
     path(
         "directories/<str:directory_id>/files/",
-        FileListCreateView.as_view(),
+        DirectoryFileListCreateView.as_view(),
         name="file-list-create",
     ),
     path(

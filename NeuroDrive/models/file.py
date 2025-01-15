@@ -16,7 +16,7 @@ class File(BaseModel):
         related_name="files",
     )
     size = models.PositiveIntegerField()  # Size in bytes
-    file = models.FileField(upload_to="protected/drive/attachments/")
+    s3_url = models.CharField(max_length=256)
     is_starred = models.BooleanField(default=False)
 
     def __str__(self):

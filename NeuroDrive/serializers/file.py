@@ -1,17 +1,20 @@
 import mimetypes
 from rest_framework import serializers
 
+from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 
 
 class FileSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255, required=False)
     file = serializers.FileField(required=False)
+    url = serializers.URLField(read_only=True)
 
     class Meta:
         model = File
         fields = [
             "id",
+            "url",
             "name",
             "file",
             "size",
@@ -53,12 +56,15 @@ class FileSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-        file = validated_data.get("file")
+        file = validated_data.pop("file")
         request = self.context.get("request")
-        name = validated_data.get("name", file.name)
+        name = validated_data.get("name", file.name).replace(" ", "_")
         content_type, _ = mimetypes.guess_type(file.name)
-
+        s3_client = S3Service()
+        s3_key = f"neurodrive/{request.directory.id}/{name}"
+        s3_url = s3_client.upload_file(file, s3_key)
         validated_data["name"] = name
+        validated_data["s3_url"] = s3_url
         validated_data["size"] = file.size
         validated_data["owner"] = request.user
         validated_data["directory"] = request.directory
