@@ -108,7 +108,7 @@ class EmailSerializer(serializers.ModelSerializer):
             name = file.name.replace(" ", "_")
             s3_key = f"neuromail/{email.id}/{name}"
             s3_url = s3_client.upload_file(file, s3_key)
-            attachment_urls.append(s3_client.generate_presigned_url(s3_key))
+            attachment_urls.append(s3_client.generate_presigned_url(s3_url))
             attachments.append(
                 EmailAttachment(
                     id=f"{EmailAttachment.UID_PREFIX}{secrets.token_hex(6)}",
