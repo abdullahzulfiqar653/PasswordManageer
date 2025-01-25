@@ -1,6 +1,5 @@
 import mimetypes
 from rest_framework import serializers
-
 from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 
@@ -82,3 +81,16 @@ class FileSerializer(serializers.ModelSerializer):
         if hasattr(request, "directory") and hasattr(request, "file"):
             validated_data["directory"] = request.directory
         return super().update(instance, validated_data)
+
+class FileMetadataRemoveSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = ["name", "size", "content_type"]
+
+    def update(self, instance):
+        
+        instance.name = ""
+        instance.size = 0
+        instance.content_type = ""
+        instance.save()
+        return instance

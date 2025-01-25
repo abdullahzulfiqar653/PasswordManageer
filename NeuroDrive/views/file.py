@@ -6,8 +6,13 @@ from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 from NeuroDrive.models.shared_access import SharedAccess
 
-from NeuroDrive.serializers.file import FileSerializer
-from NeuroDrive.permissions import IsFileOwner, IsDirectoryOwner
+from NeuroDrive.serializers.file import FileSerializer,FileMetadataRemoveSerializer
+from NeuroDrive.permissions import (
+    IsFileOwner,
+    IsDirectoryOwner,
+    IsOwnerOrSharedDirectory,
+)
+
 
 
 class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -70,6 +75,16 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 class FileDirecoryUpdateView(generics.UpdateAPIView):
     serializer_class = FileSerializer
     permission_classes = [IsFileOwner, IsDirectoryOwner]
+
+    def get_queryset(self):
+        return self.request.directory.files.all().order_by("created_at")
+
+    def get_object(self):
+        return self.request.file
+
+class FileMetadataRemoveView(generics.UpdateAPIView):
+    serializer_class = FileMetadataRemoveSerializer
+    permission_classes = [IsFileOwner] 
 
     def get_queryset(self):
         return self.request.directory.files.all().order_by("created_at")
