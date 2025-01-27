@@ -78,7 +78,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         request = self.context.get("request")
-        file = validated_data.pop("file")
+        file = validated_data.pop("file", None)
         if file:
             name = validated_data.get("name", file.name).replace(" ", "_")
             content_type, _ = mimetypes.guess_type(file.name)
