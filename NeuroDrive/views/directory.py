@@ -64,4 +64,4 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
         return [IsOwnerOrSharedDirectory()]
 
     def get_queryset(self):
-        return self.request.directory.files.all().order_by("created_at")
+        return self.request.directory.files.all().order_by("-created_at")
