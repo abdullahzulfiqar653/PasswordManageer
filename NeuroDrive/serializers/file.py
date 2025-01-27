@@ -4,6 +4,8 @@ from rest_framework import serializers
 from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 
+s3_client = S3Service()
+
 
 class FileSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255, required=False)
@@ -60,7 +62,6 @@ class FileSerializer(serializers.ModelSerializer):
         request = self.context.get("request")
         name = validated_data.get("name", file.name).replace(" ", "_")
         content_type, _ = mimetypes.guess_type(file.name)
-        s3_client = S3Service()
         s3_key = f"neurodrive/{request.directory.id}/{name}"
         s3_url = s3_client.upload_file(file, s3_key)
         validated_data["name"] = name
@@ -76,9 +77,16 @@ class FileSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        # todo
-        # on update of name update file name
         request = self.context.get("request")
+        file = validated_data.pop("file")
+        if file:
+            name = validated_data.get("name", file.name).replace(" ", "_")
+            content_type, _ = mimetypes.guess_type(file.name)
+            s3_key = f"neurodrive/{request.directory.id}/{name}"
+            s3_url = s3_client.upload_file(file, s3_key)
+            validated_data["s3_url"] = s3_url
+            validated_data["size"] = file.size
+            validated_data["content_type"] = content_type or "application/octet-stream"
         if hasattr(request, "directory") and hasattr(request, "file"):
             validated_data["directory"] = request.directory
         return super().update(instance, validated_data)
