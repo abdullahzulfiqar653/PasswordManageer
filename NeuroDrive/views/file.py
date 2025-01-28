@@ -15,7 +15,7 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsFileOwner]
 
     def perform_destroy(self, instance):
-        instance.owner.remove_size(instance.size)
+        instance.owner.profile.remove_size(instance.size)
         return super().perform_destroy(instance)
 
     def get_object(self):
@@ -63,7 +63,7 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 ],
             )  # User has shared access to the file
         ).distinct()  # Ensure distinct results
-        
+
         return files
 
 
