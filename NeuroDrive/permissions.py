@@ -58,5 +58,6 @@ class IsFileOwner(BasePermission):
             # Check if the current user is the owner or is listed in the shared_with.
             if file.owner == request.user:
                 request.file = file
+                request.directory = file.directory
                 return True
             return False
