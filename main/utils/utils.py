@@ -1,32 +1,44 @@
-import os,stat,platform
-from datetime import datetime 
+import mimetypes
+from datetime import datetime
 
-if platform.system() != "Windows":
-    import pwd
 
-def get_file_metadata(file, content_type):
-    file_path = file.temporary_file_path() if hasattr(file, 'temporary_file_path') else None
+def get_file_metadata(file):
+    content_type, _ = mimetypes.guess_type(file.name)
     metadata = {}
+    metadata["owner"] = "Unknown"
     metadata["file_name"] = file.name
     metadata["file_size"] = file.size
+    metadata["file_extension"] = file.name.split(".")[-1]
     metadata["content_type"] = content_type or "application/octet-stream"
     metadata["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    metadata["owner"] = os.getlogin() if platform.system() == "Windows" else "Unknown"
-    metadata["file_extension"] = file.name.split('.')[-1]
-    
-    if platform.system() == "Windows":
-        metadata["owner"] = os.getlogin()
-    else:
-        try:
-            metadata["owner"] = pwd.getpwuid(os.stat(file_path).st_uid).pw_name
-        except KeyError:
-            metadata["owner"] = "Unknown"
+    metadata["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    if file_path and os.path.exists(file_path):
-        stats = os.stat(file_path)
-        metadata["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        metadata["writable"] = bool(stats.st_mode & stat.S_IWUSR) or os.access(file_path, os.W_OK)
-        metadata["readable"] = bool(stats.st_mode & stat.S_IRUSR) or os.access(file_path, os.R_OK)
-        metadata["executable"] = bool(stats.st_mode & stat.S_IXUSR) or os.access(file_path, os.X_OK)
-       
+    # Default file permissions for in-memory files
+    metadata["writable"] = True
+    metadata["readable"] = True
+    metadata["executable"] = False
+
+    # Check the file type using the MIME type or extension
+
+    # Update permissions based on the file type
+    if content_type:
+        # If it's an image or other common types, make it read-only and non-executable
+        if content_type.startswith("image") or content_type in [
+            "application/pdf",
+            "text/plain",
+        ]:
+            metadata["writable"] = (
+                False  # Image files or PDFs are generally not writable in-memory
+            )
+            metadata["executable"] = False
+        else:
+            metadata["writable"] = False  # If it's some other type, assume non-writable
+            metadata["executable"] = False  # In-memory files can't be executed
+    else:
+        # If MIME type couldn't be guessed, make writable based on context
+        metadata["writable"] = (
+            False  # Assume not writable if we can't determine MIME type
+        )
+        metadata["executable"] = False  # Assume not executable by default
+
     return metadata

@@ -74,7 +74,7 @@ class FileSerializer(serializers.ModelSerializer):
         validated_data["owner"] = request.user
         validated_data["directory"] = request.directory
         validated_data["content_type"] = content_type or "application/octet-stream"
-        validated_data["metadata"] = get_file_metadata(file, content_type)
+        validated_data["metadata"] = get_file_metadata(file)
 
         if validated_data.get("is_starred"):
             del validated_data["is_starred"]
