@@ -3,7 +3,7 @@ from rest_framework import serializers
 from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 from main.utils.utils import get_file_metadata
-
+from django.contrib.auth.hashers import make_password
 s3_client = S3Service()
 
 
@@ -13,6 +13,7 @@ class FileSerializer(serializers.ModelSerializer):
     url = serializers.URLField(read_only=True)
     metadata = serializers.JSONField(read_only=True)
     is_removed_metadata = serializers.BooleanField(default=False, write_only=True)
+    password = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = File
@@ -26,6 +27,7 @@ class FileSerializer(serializers.ModelSerializer):
             "metadata",
             "content_type",
             "is_removed_metadata",
+            "password",
         ]
         read_only_fields = ["size", "directory", "content_type"]
 
@@ -82,8 +84,11 @@ class FileSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-
         request = self.context.get("request")
+        password = validated_data.pop("password", None)
+        if password:
+            instance.password = make_password(password)
+            
         is_removed_metadata = validated_data.pop("is_removed_metadata", False)
         if is_removed_metadata:
             instance.metadata = {}
