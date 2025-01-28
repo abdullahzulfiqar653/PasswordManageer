@@ -1,8 +1,8 @@
 import mimetypes
 from rest_framework import serializers
-
 from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
+from main.utils.utils import get_file_metadata
 
 s3_client = S3Service()
 
@@ -11,6 +11,8 @@ class FileSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255, required=False)
     file = serializers.FileField(required=False)
     url = serializers.URLField(read_only=True)
+    metadata = serializers.JSONField(read_only=True)
+    is_removed_metadata = serializers.BooleanField(default=False, write_only=True)
 
     class Meta:
         model = File
@@ -21,8 +23,9 @@ class FileSerializer(serializers.ModelSerializer):
             "file",
             "size",
             "directory",
-            "is_starred",
+            "metadata",
             "content_type",
+            "is_removed_metadata",
         ]
         read_only_fields = ["size", "directory", "content_type"]
 
@@ -58,6 +61,7 @@ class FileSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        _ = validated_data.pop("is_removed_metadata", None)
         file = validated_data.pop("file")
         request = self.context.get("request")
         name = validated_data.get("name", file.name).replace(" ", "_")
@@ -70,6 +74,7 @@ class FileSerializer(serializers.ModelSerializer):
         validated_data["owner"] = request.user
         validated_data["directory"] = request.directory
         validated_data["content_type"] = content_type or "application/octet-stream"
+        validated_data["metadata"] = get_file_metadata(file, content_type)
 
         if validated_data.get("is_starred"):
             del validated_data["is_starred"]
@@ -77,7 +82,12 @@ class FileSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
+
         request = self.context.get("request")
+        is_removed_metadata = validated_data.pop("is_removed_metadata", False)
+        if is_removed_metadata:
+            instance.metadata = {}
+
         file = validated_data.pop("file", None)
         if file:
             name = validated_data.get("name", file.name).replace(" ", "_")
@@ -87,6 +97,7 @@ class FileSerializer(serializers.ModelSerializer):
             validated_data["s3_url"] = s3_url
             validated_data["size"] = file.size
             validated_data["content_type"] = content_type or "application/octet-stream"
+
         if hasattr(request, "directory") and hasattr(request, "file"):
             validated_data["directory"] = request.directory
         return super().update(instance, validated_data)

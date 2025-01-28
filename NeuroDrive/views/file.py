@@ -1,14 +1,14 @@
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
-
 from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 from NeuroDrive.models.shared_access import SharedAccess
-
-from NeuroDrive.serializers.file import FileSerializer
-from NeuroDrive.permissions import IsFileOwner, IsDirectoryOwner
-
+from NeuroDrive.serializers.file import FileSerializer 
+from NeuroDrive.permissions import (
+    IsFileOwner,
+    IsDirectoryOwner
+)
 
 class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FileSerializer
@@ -23,6 +23,8 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         Retrieve the file object, and check if the user is either the owner or has access through SharedAccess.
         """
         # Retrieve the file object based on the primary key
+    
+
         obj = super().get_object()
 
         # Verify if the user is the owner

@@ -1,11 +1,10 @@
 from django.db import models
-
 from main.models.abstract.base import BaseModel
-
 
 class File(BaseModel):
     name = models.CharField(max_length=255)
     content_type = models.CharField(max_length=100)
+    metadata = models.JSONField(null=True, blank=True)  
     owner = models.ForeignKey(
         "auth.User", on_delete=models.CASCADE, related_name="files"
     )
@@ -29,6 +28,7 @@ class File(BaseModel):
 
     def size_in_gb(self):
         return self.size / (1024 * 1024 * 1024)
-
+        
     class Meta:
         unique_together = ("owner", "name", "directory")
+        
