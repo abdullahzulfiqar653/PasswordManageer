@@ -7,7 +7,7 @@ from main.views import (
     UserSignUpView,
     UserProfileRetrieveUpdateView,
 )
-from NeuroDrive.views.file import FileMetadataRemoveView
+
 
 from NeuroDrive.views import (
     DirectoryFileListCreateView,
@@ -71,7 +71,5 @@ urlpatterns = [
         FileRetrieveUpdateDestroyView.as_view(),
         name="file-retrieve-update-destroy",
     ),
-    path("files/<str:pk>/remove-metadata/", 
-         FileMetadataRemoveView.as_view(),
-         name="file-metadata-removal"),
+
 ]
