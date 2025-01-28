@@ -20,7 +20,7 @@ class DirectoryListCreateView(generics.ListCreateAPIView):
         return (
             self.request.user.directories.filter(parent=None, name="main")
             | Directory.objects.filter(shared_with=self.request.user)
-        ).order_by("created_at")
+        ).order_by("-created_at")
 
 
 class DirectoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -64,4 +64,4 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
         return [IsOwnerOrSharedDirectory()]
 
     def get_queryset(self):
-        return self.request.directory.files.all().order_by("created_at")
+        return self.request.directory.files.all().order_by("-created_at")
