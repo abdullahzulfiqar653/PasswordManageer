@@ -14,8 +14,7 @@ from NeuroDrive.views import (
     FileDirecoryUpdateView,
     DirectoryListCreateView,
     FileRetrieveUpdateDestroyView,
-    DirectoryRetrieveUpdateDestroyView,
-    
+    DirectoryRetrieveUpdateDestroyView,  
 )
 
 urlpatterns = [
@@ -70,6 +69,5 @@ urlpatterns = [
         "files/<str:pk>/",
         FileRetrieveUpdateDestroyView.as_view(),
         name="file-retrieve-update-destroy",
-    ),
-
+    )
 ]

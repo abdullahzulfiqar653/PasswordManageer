@@ -1,36 +1,32 @@
 import os,stat,platform
-from datetime import datetime
+from datetime import datetime 
 
+if platform.system() != "Windows":
+    import pwd
 
 def get_file_metadata(file, content_type):
- 
-        file_path = file.temporary_file_path() if hasattr(file, 'temporary_file_path') else None
-        
-        metadata = {
-            "file_name": file.name,
-            "file_size": file.size,
-            "content_type": content_type or "application/octet-stream",
-            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "owner": os.getlogin() if platform.system() == "Windows" else "Unknown",
-            "file_extension": file.name.split('.')[-1],
-            "writable":False,
-            "executable":False,
-            "readable":False
-        }
+    file_path = file.temporary_file_path() if hasattr(file, 'temporary_file_path') else None
+    metadata = {}
+    metadata["file_name"] = file.name
+    metadata["file_size"] = file.size
+    metadata["content_type"] = content_type or "application/octet-stream"
+    metadata["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    metadata["owner"] = os.getlogin() if platform.system() == "Windows" else "Unknown"
+    metadata["file_extension"] = file.name.split('.')[-1]
+    
+    if platform.system() == "Windows":
+        metadata["owner"] = os.getlogin()
+    else:
+        try:
+            metadata["owner"] = pwd.getpwuid(os.stat(file_path).st_uid).pw_name
+        except KeyError:
+            metadata["owner"] = "Unknown"
 
-        if file_path and os.path.exists(file_path):
-            stats = os.stat(file_path)
-            metadata.update({
-                "writable": bool(stats.st_mode & stat.S_IWUSR) or os.access(file_path, os.W_OK),
-                "readable": bool(stats.st_mode & stat.S_IRUSR) or os.access(file_path, os.R_OK),
-                "executable": bool(stats.st_mode & stat.S_IXUSR) or os.access(file_path, os.X_OK),
-                "owner": os.getlogin(),
-            })
-
-        if content_type in ["application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", 
-                        "application/pdf", "text/plain"]:
-            metadata.update({"readable": True, "writable": True, "executable": False})
-
-        
-        return metadata
+    if file_path and os.path.exists(file_path):
+        stats = os.stat(file_path)
+        metadata["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        metadata["writable"] = bool(stats.st_mode & stat.S_IWUSR) or os.access(file_path, os.W_OK)
+        metadata["readable"] = bool(stats.st_mode & stat.S_IRUSR) or os.access(file_path, os.R_OK)
+        metadata["executable"] = bool(stats.st_mode & stat.S_IXUSR) or os.access(file_path, os.X_OK)
+       
+    return metadata

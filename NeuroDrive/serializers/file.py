@@ -10,7 +10,7 @@ class FileSerializer(serializers.ModelSerializer):
     file = serializers.FileField(required=False)
     url = serializers.URLField(read_only=True)
     metadata = serializers.JSONField(read_only=True)
-    is_removed_metadata=serializers.BooleanField(default=False,write_only=True)
+    is_removed_metadata = serializers.BooleanField(default=False, write_only=True)
     
     class Meta:
         model = File
@@ -21,8 +21,8 @@ class FileSerializer(serializers.ModelSerializer):
             "file",
             "size",
             "directory",
-            "content_type",
             "metadata",
+            "content_type",
             "is_removed_metadata"
         ]
         read_only_fields = ["size", "directory", "content_type"]
@@ -59,7 +59,7 @@ class FileSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
-       #is_removed_metadata = validated_data.pop("is_removed_metadata", False)
+        validated_data.pop("is_removed_metadata", None)
         file = validated_data.pop("file")
         request = self.context.get("request")
         name = validated_data.get("name", file.name).replace(" ", "_")
@@ -73,11 +73,8 @@ class FileSerializer(serializers.ModelSerializer):
         validated_data["owner"] = request.user
         validated_data["directory"] = request.directory
         validated_data["content_type"] = content_type or "application/octet-stream"
+        validated_data["metadata"] = get_file_metadata(file, content_type)
     
-        metadata = get_file_metadata(file, content_type)
-        validated_data["metadata"] = metadata
-        
-       
         if validated_data.get("is_starred"):
             del validated_data["is_starred"]
 
@@ -87,9 +84,7 @@ class FileSerializer(serializers.ModelSerializer):
         is_removed_metadata = validated_data.pop("is_removed_metadata", False)
         request = self.context.get("request")
         if is_removed_metadata:
-            instance.metadata = None
+            instance.metadata = {}
         if hasattr(request, "directory") and hasattr(request, "file"):
             validated_data["directory"] = request.directory
         return super().update(instance, validated_data)
-
-

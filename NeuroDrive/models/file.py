@@ -1,14 +1,10 @@
 from django.db import models
 from main.models.abstract.base import BaseModel
 
-
 class File(BaseModel):
     name = models.CharField(max_length=255)
     content_type = models.CharField(max_length=100)
     metadata = models.JSONField(null=True, blank=True)  
-    created_at = models.DateTimeField(auto_now_add=True) 
-    updated_at=  models.TimeField(auto_now_add=True)
-    is_removed_metadata = models.BooleanField(default=False)
     owner = models.ForeignKey(
         "auth.User", on_delete=models.CASCADE, related_name="files"
     )
@@ -22,7 +18,6 @@ class File(BaseModel):
     s3_url = models.CharField(max_length=256)
     is_starred = models.BooleanField(default=False)
 
-    
     def __str__(self):
         return self.name
 
@@ -33,8 +28,7 @@ class File(BaseModel):
 
     def size_in_gb(self):
         return self.size / (1024 * 1024 * 1024)
-    
-    
-
+        
     class Meta:
         unique_together = ("owner", "name", "directory")
+        

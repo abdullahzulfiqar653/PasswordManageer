@@ -10,8 +10,6 @@ from NeuroDrive.permissions import (
     IsDirectoryOwner
 )
 
-
-
 class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = FileSerializer
     permission_classes = [IsFileOwner]
@@ -80,4 +78,3 @@ class FileDirecoryUpdateView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.file
-
