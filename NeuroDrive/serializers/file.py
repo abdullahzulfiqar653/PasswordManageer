@@ -3,7 +3,7 @@ from rest_framework import serializers
 from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 from main.utils.utils import get_file_metadata
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password,check_password
 s3_client = S3Service()
 
 
@@ -13,7 +13,9 @@ class FileSerializer(serializers.ModelSerializer):
     url = serializers.URLField(read_only=True)
     metadata = serializers.JSONField(read_only=True)
     is_removed_metadata = serializers.BooleanField(default=False, write_only=True)
+    is_password_protected = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True, required=False)
+    remove_password = serializers.BooleanField(write_only=True, required=False)
 
     class Meta:
         model = File
@@ -28,11 +30,17 @@ class FileSerializer(serializers.ModelSerializer):
             "content_type",
             "is_removed_metadata",
             "password",
+            "remove_password",
+            "is_password_protected",
         ]
         read_only_fields = ["size", "directory", "content_type"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+    def get_is_password_protected(self, obj):
+        """Check if the file is password protected"""
+        return bool(obj.password)
 
     def validate(self, data):
         """
@@ -63,6 +71,7 @@ class FileSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        _ = validated_data.pop("remove_password", None)
         _ = validated_data.pop("is_removed_metadata", None)
         file = validated_data.pop("file")
         request = self.context.get("request")
@@ -86,7 +95,18 @@ class FileSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         request = self.context.get("request")
         password = validated_data.pop("password", None)
-        if password:
+        remove_password = validated_data.pop("remove_password", False)
+        
+        if remove_password:
+            if not password:
+                raise serializers.ValidationError("Current password is required to remove password.")
+
+            if not check_password(password, instance.password):
+                raise serializers.ValidationError("Incorrect password.")
+
+            instance.password = None 
+
+        elif password:
             instance.password = make_password(password)
             
         is_removed_metadata = validated_data.pop("is_removed_metadata", False)

@@ -29,7 +29,7 @@ class File(BaseModel):
 
     def size_in_gb(self):
         return self.size / (1024 * 1024 * 1024)
-        
+   
     class Meta:
         unique_together = ("owner", "name", "directory")
         
