@@ -51,13 +51,7 @@ class FileSerializer(serializers.ModelSerializer):
         if query.filter(
             owner=request.user, name=name, directory=request.directory
         ).exists():
-            raise serializers.ValidationError(
-                {
-                    "error": [
-                        "A file with the same name already exists in this directory for this owner."
-                    ]
-                }
-            )
+            pass
         return data
 
     def create(self, validated_data):
