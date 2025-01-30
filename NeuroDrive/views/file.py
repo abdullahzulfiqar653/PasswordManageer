@@ -49,7 +49,7 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             entered_password = self.request.query_params.get('password')
 
             if not entered_password:
-                raise PermissionDenied(" Please provide a password.")
+                raise PermissionDenied("Password required to access this file.")
 
             if not check_password(entered_password, obj.password):
                 raise PermissionDenied("Incorrect password.")
