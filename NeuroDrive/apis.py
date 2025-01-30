@@ -7,18 +7,18 @@ from main.views import (
     UserSignUpView,
     UserProfileRetrieveUpdateView,
 )
-
-
 from NeuroDrive.views import (
     DirectoryFileListCreateView,
     FileDirecoryUpdateView,
     DirectoryListCreateView,
     FileRetrieveUpdateDestroyView,
-    DirectoryRetrieveUpdateDestroyView,  
+    DirectoryRetrieveUpdateDestroyView,   
 )
+from NeuroDrive.views.file import FileAccessView
+
 
 urlpatterns = [
-    # =====================================================
+    # =====================================================.
     # User
     # =====================================================
     path("user/token/verify/", TokenVerifyView.as_view(), name="token-verify"),
@@ -69,5 +69,9 @@ urlpatterns = [
         "files/<str:pk>/",
         FileRetrieveUpdateDestroyView.as_view(),
         name="file-retrieve-update-destroy",
-    )
+    ),
+   path('files/<str:pk>/access/',
+        FileAccessView.as_view(),
+        name='file-access'),
+
 ]

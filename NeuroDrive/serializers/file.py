@@ -130,3 +130,8 @@ class FileSerializer(serializers.ModelSerializer):
         if hasattr(request, "directory") and hasattr(request, "file"):
             validated_data["directory"] = request.directory
         return super().update(instance, validated_data)
+
+
+class FileAccessSerializer(serializers.Serializer):
+    password = serializers.CharField(write_only=True)
+    url = serializers.CharField(read_only=True)
