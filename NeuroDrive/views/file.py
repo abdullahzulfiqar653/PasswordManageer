@@ -75,7 +75,6 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 ],
             )  # User has shared access to the file
         ).distinct()  # Ensure distinct results
-
         return files
 
 

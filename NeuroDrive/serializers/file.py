@@ -31,11 +31,12 @@ class FileSerializer(serializers.ModelSerializer):
             "name",
             "file",
             "size",
-            "directory",
             "metadata",
+            "password",
+            "directory",
+            "is_starred",
             "content_type",
             "is_remove_metadata",
-            "password",
             "is_remove_password",
             "is_password_protected",
         ]
@@ -71,6 +72,7 @@ class FileSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data):
+        _ = validated_data.pop("is_starred", None)
         _ = validated_data.pop("is_remove_password", None)
         _ = validated_data.pop("is_remove_metadata", None)
         file = validated_data.pop("file")
