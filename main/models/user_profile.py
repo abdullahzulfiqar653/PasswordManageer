@@ -8,7 +8,8 @@ class UserProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     image_name = models.CharField(max_length=256, null=True, blank=True)
     total_size = models.PositiveBigIntegerField(default=0)
-
+    address = models.CharField(max_length=512, null=True, blank=True)
+    
     def add_size(self, size):
         self.total_size += size
         self.save()

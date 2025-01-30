@@ -5,6 +5,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 
 from main.utils import hash_passphrase
+from main.models.user_profile import UserProfile
 
 
 class UserSignInSerializer(serializers.Serializer):
@@ -26,10 +27,28 @@ class UserSignInSerializer(serializers.Serializer):
                     user = User.objects.create(username=pass_phrase)
                     user.set_password(hash)
                     user.save()
+
+                    address = response.json().get("data", {}).get("address", "")
+                    UserProfile.objects.create(user=user, address=address)
                 else:
                     AuthenticationFailed("Invalid Seed.")
             except:
                 AuthenticationFailed("Resonance Server down please contact admin Seed.")
+        if user:
+            user_profile = UserProfile.objects.get_or_create(user=user)
+            if user_profile.address == None:
+                url = "https://apiresonance.neuronus.net/api/user/login"
+                payload = {"seed": pass_phrase}
+                try:
+                    response = requests.post(url, json=payload)
+                    if response.status_code == 200:
+                        address = response.json().get("data", {}).get("address", "")
+                        user_profile.address = address
+                        user_profile.save()
+                except:
+                    raise AuthenticationFailed(
+                        "Resonance Server down, please contact admin."
+                    )
 
         if user and user.check_password(hash):
             refresh = RefreshToken.for_user(user)
