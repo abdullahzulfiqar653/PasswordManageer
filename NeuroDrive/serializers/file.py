@@ -67,13 +67,7 @@ class FileSerializer(serializers.ModelSerializer):
         if query.filter(
             owner=request.user, name=name, directory=request.directory
         ).exists():
-            raise serializers.ValidationError(
-                {
-                    "error": [
-                        "A file with the same name already exists in this directory for this owner."
-                    ]
-                }
-            )
+            pass
         return data
 
     def create(self, validated_data):
@@ -91,7 +85,7 @@ class FileSerializer(serializers.ModelSerializer):
         validated_data["owner"] = request.user
         validated_data["directory"] = request.directory
         validated_data["content_type"] = content_type or "application/octet-stream"
-        validated_data["metadata"] = get_file_metadata(file, content_type)
+        validated_data["metadata"] = get_file_metadata(file)
 
         if validated_data.get("is_starred"):
             del validated_data["is_starred"]
