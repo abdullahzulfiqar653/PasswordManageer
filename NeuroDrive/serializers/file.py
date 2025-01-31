@@ -4,8 +4,9 @@ from rest_framework import serializers
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.hashers import make_password, check_password
 
-from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
+
+from main.services.s3 import S3Service
 from main.utils.utils import get_file_metadata
 
 s3_client = S3Service()

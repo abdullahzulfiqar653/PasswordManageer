@@ -7,14 +7,13 @@ from main.views import (
     UserSignUpView,
     UserProfileRetrieveUpdateView,
 )
-
-
 from NeuroDrive.views import (
     DirectoryFileListCreateView,
     FileDirecoryUpdateView,
     DirectoryListCreateView,
     FileRetrieveUpdateDestroyView,
-    DirectoryRetrieveUpdateDestroyView,  
+    DirectoryRetrieveUpdateDestroyView,
+    FileAccessView,
 )
 
 urlpatterns = [
@@ -69,5 +68,9 @@ urlpatterns = [
         "files/<str:pk>/",
         FileRetrieveUpdateDestroyView.as_view(),
         name="file-retrieve-update-destroy",
-    )
+    ),
+    path("files/password-protected/<str:pk>/",
+         FileAccessView.as_view(),
+         name="file-access"),
+    
 ]

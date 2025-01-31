@@ -1,7 +1,6 @@
 from django.db.models import Q
 from rest_framework import generics
 from rest_framework.exceptions import PermissionDenied
-from django.contrib.auth.hashers import check_password
 
 from main.services.s3 import S3Service
 
@@ -9,6 +8,7 @@ from NeuroDrive.models.file import File
 from NeuroDrive.serializers.file import FileSerializer
 from NeuroDrive.models.shared_access import SharedAccess
 from NeuroDrive.permissions import IsFileOwner, IsDirectoryOwner
+from NeuroDrive.serializers.fileAccess import FileAccessSerializer
 
 
 class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -45,13 +45,9 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                 )
 
         if obj.password:
-            entered_password = self.request.query_params.get("password")
-
-            if not entered_password:
-                raise PermissionDenied("Password required to access this file.")
-
-            if not check_password(entered_password, obj.password):
-                raise PermissionDenied("Incorrect password.")
+            raise PermissionDenied(
+                "File is Password Protected. You cannot access this file."
+            )
 
         s3_client = S3Service()
         obj.url = s3_client.generate_presigned_url(obj.s3_url)
@@ -87,3 +83,8 @@ class FileDirecoryUpdateView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.file
+
+
+class FileAccessView(generics.CreateAPIView):
+    serializer_class = FileAccessSerializer
+    permission_classes = [IsFileOwner]
