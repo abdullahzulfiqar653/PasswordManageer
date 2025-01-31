@@ -1,14 +1,14 @@
 from django.db.models import Q
-from rest_framework import generics, permissions
-from rest_framework.exceptions import PermissionDenied 
-from django.contrib.auth.hashers import check_password
-from django.shortcuts import get_object_or_404
+from rest_framework import generics
+from rest_framework.exceptions import PermissionDenied
+
 from main.services.s3 import S3Service
 
 from NeuroDrive.models.file import File
-from NeuroDrive.serializers.file import FileSerializer, FileAccessSerializer, serializers
+from NeuroDrive.serializers.file import FileSerializer
 from NeuroDrive.models.shared_access import SharedAccess
 from NeuroDrive.permissions import IsFileOwner, IsDirectoryOwner
+from NeuroDrive.serializers.fileAccess import FileAccessSerializer
 
 
 class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
@@ -42,10 +42,12 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             if not shared_access.exists():
                 raise PermissionDenied(
                     "You do not have permission to access this file."
-                ) 
+                )
 
         if obj.password:
-              raise PermissionDenied("File is Password Protected.You cannot access this file.")
+            raise PermissionDenied(
+                "File is Password Protected. You cannot access this file."
+            )
 
         s3_client = S3Service()
         obj.url = s3_client.generate_presigned_url(obj.s3_url)
@@ -82,30 +84,7 @@ class FileDirecoryUpdateView(generics.UpdateAPIView):
     def get_object(self):
         return self.request.file
 
+
 class FileAccessView(generics.CreateAPIView):
     serializer_class = FileAccessSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def perform_create(self, serializer): 
-        obj = get_object_or_404(File, id=self.kwargs.get('pk'))
-
-        if obj.owner != self.request.user:
-            shared_access = SharedAccess.objects.filter(
-                user=self.request.user,
-                item=obj,
-                permission_type__in=[
-                    SharedAccess.Permission.READ,
-                    SharedAccess.Permission.FULL]
-            )
-            if not shared_access.exists():
-                raise PermissionDenied("You do not have permission to access this file.")
-
-        if obj.password:
-            password = serializer.validated_data.get('password')
-            if not check_password(password, obj.password):
-                raise serializers.ValidationError("Incorrect password.")
-
-        s3_client = S3Service()
-        obj.url = s3_client.generate_presigned_url(obj.s3_url)
-        serializer.validated_data['url'] = obj.url
-        return serializer.validated_data
+    permission_classes = [IsFileOwner]

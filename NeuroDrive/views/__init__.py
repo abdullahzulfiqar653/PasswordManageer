@@ -6,6 +6,7 @@ from NeuroDrive.views.directory import (
 from NeuroDrive.views.file import (
     FileDirecoryUpdateView,
     FileRetrieveUpdateDestroyView,
+    FileAccessView,
 )
 
 
@@ -15,4 +16,5 @@ __all__ = [
     "DirectoryFileListCreateView",
     "FileRetrieveUpdateDestroyView",
     "DirectoryRetrieveUpdateDestroyView",
+    "FileAccessView",
 ]

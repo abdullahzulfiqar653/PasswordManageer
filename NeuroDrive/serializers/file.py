@@ -4,8 +4,9 @@ from rest_framework import serializers
 from django.core.validators import MinLengthValidator
 from django.contrib.auth.hashers import make_password, check_password
 
-from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
+
+from main.services.s3 import S3Service
 from main.utils.utils import get_file_metadata
 
 s3_client = S3Service()
@@ -130,8 +131,3 @@ class FileSerializer(serializers.ModelSerializer):
         if hasattr(request, "directory") and hasattr(request, "file"):
             validated_data["directory"] = request.directory
         return super().update(instance, validated_data)
-
-
-class FileAccessSerializer(serializers.Serializer):
-    password = serializers.CharField(write_only=True)
-    url = serializers.CharField(read_only=True)
