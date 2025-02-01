@@ -44,6 +44,7 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                     "You do not have permission to access this file."
                 )
 
+
         if obj.password and self.request.method != "DELETE":
             raise PermissionDenied(
                 "File is Password Protected. You cannot access this file."

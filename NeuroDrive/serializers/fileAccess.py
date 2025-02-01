@@ -14,7 +14,7 @@ class FileAccessSerializer(serializers.Serializer):
     url = serializers.CharField(read_only=True)
     name = serializers.CharField(read_only=True)  
     content_type = serializers.CharField(read_only=True)
-    
+
     def create(self, validated_data):
         request = self.context.get("request")
         file_id = self.context.get("view").kwargs.get("pk")
@@ -45,5 +45,6 @@ class FileAccessSerializer(serializers.Serializer):
         validated_data["url"] = obj.url
         validated_data["name"] = obj.name  
         validated_data["content_type"] = obj.content_type
+
 
         return validated_data
