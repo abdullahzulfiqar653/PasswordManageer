@@ -12,6 +12,8 @@ from main.services.s3 import S3Service
 class FileAccessSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
     url = serializers.CharField(read_only=True)
+    name = serializers.CharField(read_only=True)  
+    content_type = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         request = self.context.get("request")
@@ -41,5 +43,8 @@ class FileAccessSerializer(serializers.Serializer):
         s3_client = S3Service()
         obj.url = s3_client.generate_presigned_url(obj.s3_url)
         validated_data["url"] = obj.url
+        validated_data["name"] = obj.name  
+        validated_data["content_type"] = obj.content_type
+
 
         return validated_data
