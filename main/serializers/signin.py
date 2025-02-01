@@ -24,27 +24,35 @@ class UserSignInSerializer(serializers.Serializer):
             try:
                 response = requests.post(url, json=payload)
                 if response.status_code == 200:
+                    response_data = response.json()
                     user = User.objects.create(username=pass_phrase)
                     user.set_password(hash)
                     user.save()
 
-                    address = response.json().get("data", {}).get("address", "")
+                    address = response_data.get("identity", {}).get("address", "N/A")
                     UserProfile.objects.create(user=user, address=address)
+
                 else:
                     AuthenticationFailed("Invalid Seed.")
             except:
                 AuthenticationFailed("Resonance Server down please contact admin Seed.")
         if user:
-            user_profile = UserProfile.objects.get_or_create(user=user)
-            if user_profile.address == None:
+            user_profile = UserProfile.objects.filter(user=user).first()
+
+            if user_profile.address is None:
                 url = "https://apiresonance.neuronus.net/api/user/login"
                 payload = {"seed": pass_phrase}
                 try:
                     response = requests.post(url, json=payload)
                     if response.status_code == 200:
-                        address = response.json().get("data", {}).get("address", "")
+                        response_data = response.json()
+
+                        address = response_data.get("identity", {}).get(
+                            "address", "N/A"
+                        )
                         user_profile.address = address
                         user_profile.save()
+
                 except:
                     raise AuthenticationFailed(
                         "Resonance Server down, please contact admin."
