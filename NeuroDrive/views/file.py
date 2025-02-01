@@ -26,6 +26,9 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         # Retrieve the file object based on the primary key
 
         obj = super().get_object()
+        
+        if self.request.method == "DELETE":
+          return obj
 
         # Verify if the user is the owner
         if obj.owner != self.request.user:
@@ -44,7 +47,7 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
                     "You do not have permission to access this file."
                 )
 
-        if obj.password and self.request.method != "DELETE":
+        if obj.password:
             raise PermissionDenied(
                 "File is Password Protected. You cannot access this file."
             )
