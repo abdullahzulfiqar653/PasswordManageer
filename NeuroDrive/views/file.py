@@ -77,7 +77,6 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         ).distinct()  # Ensure distinct results
         return files
 
-
 class FileDirecoryUpdateView(generics.UpdateAPIView):
     serializer_class = FileSerializer
     permission_classes = [IsFileOwner, IsDirectoryOwner]
