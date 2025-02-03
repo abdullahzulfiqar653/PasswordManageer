@@ -1,5 +1,7 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
+
+from main.views.download_file import FileDownloadAPIView
 from main.views.protected_media import ProtectedMediaView
 
 from main.views import (
@@ -36,9 +38,9 @@ urlpatterns = [
     # Media
     # =====================================================
     path(
-        "media/<str:file_type>/<str:file_name>/",
-        ProtectedMediaView.as_view(),
-        name="mail-protected-media",
+        "media/file-download/",
+        FileDownloadAPIView.as_view(),
+        name="file-download-view",
     ),
     # =====================================================
     # Directories
@@ -69,8 +71,9 @@ urlpatterns = [
         FileRetrieveUpdateDestroyView.as_view(),
         name="file-retrieve-update-destroy",
     ),
-    path("files/password-protected/<str:pk>/",
-         FileAccessView.as_view(),
-         name="file-access"),
-    
+    path(
+        "files/password-protected/<str:pk>/",
+        FileAccessView.as_view(),
+        name="file-access",
+    ),
 ]
