@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenVerifyView
-from main.views.protected_media import ProtectedMediaView
+from main.views.download_file import FileDownloadAPIView
 
 
 from NeuroMail.views import (
@@ -104,11 +104,11 @@ urlpatterns = [
         name="rephrase-email-create",
     ),
     # =====================================================
-    # Profile
+    # Media
     # =====================================================
     path(
-        "media/<str:file_type>/<str:file_name>/",
-        ProtectedMediaView.as_view(),
-        name="mail-protected-media",
+        "media/file-download/",
+        FileDownloadAPIView.as_view(),
+        name="file-download-view",
     ),
 ]
