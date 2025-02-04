@@ -1,9 +1,13 @@
 from rest_framework import generics, filters
+from drf_yasg.utils import swagger_auto_schema
 from django_filters.rest_framework import DjangoFilterBackend
 
-from NeuroDrive.models.directory import Directory
 from NeuroDrive.serializers.file import FileSerializer
 from NeuroDrive.serializers.directory import DirectorySerializer
+
+from NeuroDrive.models.directory import Directory
+from NeuroDrive.models import SharedAccess, File
+
 
 from NeuroDrive.permissions import (
     IsDirectoryOwner,
@@ -54,6 +58,7 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
     filterset_fields = ["is_starred"]
     serializer_class = FileSerializer
     filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    
 
     def get_permissions(self):
         """
@@ -62,6 +67,22 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
         if self.request.method == "POST":
             return [IsDirectoryOwner()]
         return [IsOwnerOrSharedDirectory()]
-
+    
+    @swagger_auto_schema(
+        operation_description=" If the directory ID is 'shared', shared files will be displayed."
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+    
     def get_queryset(self):
+        directory_id = self.kwargs.get("directory_id") or self.kwargs.get("pk")
+        user = self.request.user
+        if directory_id == "shared":
+
+            return File.objects.filter(
+                id__in=SharedAccess.objects.filter(user=user).values_list(
+                    "item", flat=True
+                )
+            )
+
         return self.request.directory.files.all().order_by("-created_at")

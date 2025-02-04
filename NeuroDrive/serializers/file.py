@@ -143,8 +143,7 @@ class FileSerializer(serializers.ModelSerializer):
 
                 SharedAccess.objects.create(
                     user=user_to_share_with,
-                    item=instance,
-                    permission_type=SharedAccess.Permission.FULL,
+                    item=instance
                 )
             except User.DoesNotExist:
                 raise serializers.ValidationError(

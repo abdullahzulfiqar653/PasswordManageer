@@ -34,6 +34,9 @@ class IsOwnerOrSharedDirectory(BasePermission):
     def has_permission(self, request, view):
         directory_id = view.kwargs.get("directory_id") or view.kwargs.get("pk")
         if directory_id:
+            if directory_id == "shared":
+                return True
+            
             # Efficiently fetch the directory with the user's ownership or shared status.
             directory = get_object_or_404(Directory, id=directory_id)
 
@@ -57,6 +60,12 @@ class IsFileOwner(BasePermission):
             file = get_object_or_404(File, id=file_id)
             # Check if the current user is the owner or is listed in the shared_with.
             if file.owner == request.user:
+                request.file = file
+                request.directory = file.directory
+                return True
+
+            queryset = file.shared_accesses.filter(user=request.user)
+            if queryset.exists():
                 request.file = file
                 request.directory = file.directory
                 return True

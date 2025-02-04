@@ -30,15 +30,14 @@ class UserSignInSerializer(serializers.Serializer):
                     user.save()
 
                     address = response_data.get("identity", {}).get("address", "N/A")
-                    UserProfile.objects.create(user=user, address=address)
-
+                    user.profile.address = address
+                    user.profile.save()
                 else:
                     AuthenticationFailed("Invalid Seed.")
             except:
                 AuthenticationFailed("Resonance Server down please contact admin Seed.")
         if user:
-            user_profile = UserProfile.objects.filter(user=user).first()
-
+            user_profile = user.profile
             if user_profile.address is None:
                 url = "https://apiresonance.neuronus.net/api/user/login"
                 payload = {"seed": pass_phrase}
