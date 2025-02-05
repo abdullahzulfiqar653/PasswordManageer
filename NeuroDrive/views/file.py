@@ -8,7 +8,7 @@ from NeuroDrive.models.file import File
 from NeuroDrive.serializers.file import FileSerializer
 from NeuroDrive.models.shared_access import SharedAccess
 from NeuroDrive.permissions import IsFileOwner, IsDirectoryOwner
-from NeuroDrive.serializers.fileAccess import FileAccessSerializer
+from NeuroDrive.serializers.file_access import FileAccessSerializer
 
 
 class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):

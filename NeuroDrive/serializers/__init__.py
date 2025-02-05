@@ -1,7 +1,7 @@
 from NeuroDrive.serializers.file import FileSerializer
 from NeuroDrive.serializers.directory import DirectorySerializer
-from NeuroDrive.serializers.fileAccess import FileAccessSerializer
-from NeuroDrive.serializers.sharedAccess import SharedAccessSerializer
+from NeuroDrive.serializers.file_access import FileAccessSerializer
+from NeuroDrive.serializers.shared_access import SharedAccessSerializer
 
 
 __all__ = [

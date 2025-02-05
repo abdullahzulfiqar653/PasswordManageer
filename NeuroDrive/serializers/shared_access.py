@@ -10,7 +10,8 @@ class SharedAccessSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SharedAccess
-        fields = ["id", "image"]
+        fields = ["id", "image", "permission_type"]
+        read_only_fields = ["permission_type"]
 
     def get_image(self, obj):
         user_profile = getattr(obj.user, "profile", None)

@@ -60,6 +60,5 @@ class UserSignInSerializer(serializers.Serializer):
             return {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
-                "address": user.profile.address,
             }
         raise AuthenticationFailed("Invalid Seed.")
