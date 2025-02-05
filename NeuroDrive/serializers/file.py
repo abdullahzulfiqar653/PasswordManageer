@@ -23,8 +23,12 @@ class FileSerializer(serializers.ModelSerializer):
     user_address = serializers.CharField(write_only=True, required=False)
     is_remove_metadata = serializers.BooleanField(default=False, write_only=True)
     is_remove_password = serializers.BooleanField(write_only=True, required=False)
-    is_giving_permission = serializers.BooleanField(write_only=True, required=False, default=False )
-    password = serializers.CharField( write_only=True, required=False, validators=[MinLengthValidator(8)])
+    is_giving_permission = serializers.BooleanField(
+        write_only=True, required=False, default=False
+    )
+    password = serializers.CharField(
+        write_only=True, required=False, validators=[MinLengthValidator(8)]
+    )
 
     class Meta:
         model = File
@@ -141,13 +145,10 @@ class FileSerializer(serializers.ModelSerializer):
             try:
                 user_to_share_with = User.objects.get(profile__address=user_address)
 
-                SharedAccess.objects.create(
-                    user=user_to_share_with,
-                    item=instance
-                )
+                SharedAccess.objects.create(user=user_to_share_with, item=instance)
             except User.DoesNotExist:
                 raise serializers.ValidationError(
-                    f"User with address {user_address} not found."
+                    {"detail": f"User with address {user_address} not found."}
                 )
 
         if hasattr(request, "directory") and hasattr(request, "file"):

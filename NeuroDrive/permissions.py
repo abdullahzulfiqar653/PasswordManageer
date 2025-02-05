@@ -62,11 +62,11 @@ class IsFileOwner(BasePermission):
                 request.file = file
                 request.directory = file.directory
                 return True
-            
+
             queryset = file.shared_accesses.filter(user=request.user)
             if queryset.exists():
                 request.file = file
                 request.directory = file.directory
                 return True
-            
+
             return False
