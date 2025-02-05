@@ -27,23 +27,6 @@ class FileRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
         obj = super().get_object()
         
-        # Verify if the user is the owner
-        if obj.owner != self.request.user:
-            # Check if the user has shared access to the file with READ or FULL permission
-            shared_access = SharedAccess.objects.filter(
-                user=self.request.user,
-                item=obj,
-                permission_type__in=[
-                    SharedAccess.Permission.READ,
-                    SharedAccess.Permission.FULL,
-                ],
-            )
-
-            if not shared_access.exists():
-                raise PermissionDenied(
-                    "You do not have permission to access this file."
-                )
-                
         if self.request.method == "DELETE":
           return obj
 
