@@ -15,7 +15,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ["id", "image", "features_data", "url"]
+        fields = ["id", "image", "address", "features_data", "url"]
+        read_only_fields = ["id", "address"]
 
     def get_features_data(self, obj):
         request = self.context.get("request")

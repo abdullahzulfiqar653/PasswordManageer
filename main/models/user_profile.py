@@ -7,6 +7,7 @@ from main.models.abstract.base import BaseModel
 class UserProfile(BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     image_name = models.CharField(max_length=256, null=True, blank=True)
+    address = models.CharField(max_length=512, null=True, blank=True)
     total_size = models.PositiveBigIntegerField(default=0)
     address = models.CharField(max_length=512, null=True, blank=True)
     
