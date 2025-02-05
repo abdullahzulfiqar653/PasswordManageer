@@ -10,6 +10,7 @@ from main.utils import hash_passphrase
 class UserSignInSerializer(serializers.Serializer):
     access = serializers.CharField(read_only=True)
     refresh = serializers.CharField(read_only=True)
+    address = serializers.CharField(read_only=True)
     pass_phrase = serializers.CharField(write_only=True)
 
     def create(self, validated_data):
@@ -59,5 +60,6 @@ class UserSignInSerializer(serializers.Serializer):
             return {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
+                "address": user.profile.address,
             }
         raise AuthenticationFailed("Invalid Seed.")
