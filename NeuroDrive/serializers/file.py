@@ -8,6 +8,8 @@ from django.contrib.auth.hashers import make_password, check_password
 from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 from NeuroDrive.models.shared_access import SharedAccess
+from NeuroDrive.serializers.sharedAccess import SharedAccessSerializer
+
 
 from main.utils.utils import get_file_metadata
 
@@ -21,6 +23,7 @@ class FileSerializer(serializers.ModelSerializer):
     is_password_protected = serializers.SerializerMethodField()
     name = serializers.CharField(max_length=255, required=False)
     user_address = serializers.CharField(write_only=True, required=False)
+    shared_accesses = SharedAccessSerializer(many=True, read_only=True)
     is_remove_metadata = serializers.BooleanField(default=False, write_only=True)
     is_remove_password = serializers.BooleanField(write_only=True, required=False)
     is_giving_permission = serializers.BooleanField(
@@ -48,6 +51,7 @@ class FileSerializer(serializers.ModelSerializer):
             "is_remove_metadata",
             "is_remove_password",
             "is_password_protected",
+            "shared_accesses",
         ]
         read_only_fields = ["size", "directory", "content_type"]
 

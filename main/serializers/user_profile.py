@@ -12,10 +12,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     url = serializers.SerializerMethodField()
     features_data = serializers.SerializerMethodField()
     image = serializers.ImageField(required=False, write_only=True)
+    address = serializers.CharField(read_only=True)
 
     class Meta:
         model = UserProfile
-        fields = ["id", "image", "features_data", "url"]
+        fields = ["id", "image", "address", "features_data", "url"]
 
     def get_features_data(self, obj):
         request = self.context.get("request")
