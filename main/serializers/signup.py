@@ -21,10 +21,18 @@ class UserSignUpSerializer(serializers.Serializer):
             response = requests.post(url, headers=headers, json=data)
             response.raise_for_status()
             response_data = response.json()
+            address = None
             if response_data.get("success") == True:
+                url = "https://apiresonance.neuronus.net/api/user/login"
+                response = requests.post(url, json=data)
+                if response.status_code == 200:
+                    response_data = response.json()
+                    address = response_data.get("identity", {}).get("address", None)
                 user = User.objects.create(username=passphrase)
                 user.set_password(hashed_passphrase)
                 user.save()
+                user.profile.address = address
+                user.profile.save()
         except Exception as e:
             print(f"Error: {e}")
             raise serializers.ValidationError(
