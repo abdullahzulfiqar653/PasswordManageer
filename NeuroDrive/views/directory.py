@@ -1,8 +1,7 @@
-from rest_framework import generics, filters, serializers
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics, filters, serializers
 from rest_framework.parsers import MultiPartParser, FormParser
+from django_filters.rest_framework import DjangoFilterBackend
 
 from NeuroDrive.models import SharedAccess, File
 from NeuroDrive.models.directory import Directory
@@ -34,10 +33,10 @@ class DirectoryListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description="""
         **Retrieve Directories**
-        
+
         This endpoint retrieves all directories that:
         - Are **owned** by the authenticated user.
-        
+
         **Response:**
         - A list of directories with their details.
         """,
@@ -49,7 +48,7 @@ class DirectoryListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description="""
         **Create a New Directory**
-        
+
         Allows the user to create a new directory.
 
         **Required Fields:**
@@ -95,7 +94,7 @@ class DirectoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     @swagger_auto_schema(
         operation_description="""
         **Retrieve Directory Details**
-        
+
         - Fetches details of a specific directory.
         - The user must  **own the directory** .
         """,
@@ -107,7 +106,7 @@ class DirectoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     @swagger_auto_schema(
         operation_description="""
         **Update Directory Details**
-        
+
         - Allows updating the **name** or **parent directory**.
         - The user must be the **owner** of the directory.
 
@@ -135,7 +134,7 @@ class DirectoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     @swagger_auto_schema(
         operation_description="""
         **Delete a Directory**
-        
+
         - Only the **owner** of the directory can delete it.
         """,
         responses={204: "Directory deleted successfully"},
@@ -193,13 +192,13 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description="""
         **List Files in a Directory**
-        
+
         Retrieves all files present in a specified directory.
-        
+
         **Required Parameters:**
         - `directory_id` (path parameter) - ID of the directory.\n
         - if `shared` is passed as directory ID it will return all shared files.
-        
+
         **Response:**
         - Returns a list of files with their details.
         """,
@@ -211,13 +210,13 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
     @swagger_auto_schema(
         operation_description="""
         **Upload a File to a Directory**
-        
+
         Allows users to upload a file into a specified directory.
-        
+
         **Required Parameters:**
         - `file` (form-data) - The file to be uploaded (pdf,img etc).\n
         - `directory_id` (path parameter) - ID of the directory where the file will be uploaded.
-        
+
         **Response:**
         - Returns the uploaded file details.
         """,

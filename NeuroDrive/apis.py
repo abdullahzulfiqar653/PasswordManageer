@@ -60,7 +60,7 @@ urlpatterns = [
     ),
     path(
         "directories/<str:directory_id>/files/<str:file_id>/",
-         FileDirectoryUpdateView.as_view(),
+        FileDirectoryUpdateView.as_view(),
         name="file-directory-update",
     ),
     # =====================================================
