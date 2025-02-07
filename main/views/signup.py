@@ -7,14 +7,20 @@ from main.serializers import UserSignUpSerializer
 class UserSignUpView(generics.CreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserSignUpSerializer
-    
+
     @swagger_auto_schema(
-        operation_description="User **sign-up** endpoint. Accepts user details to create a new user account.",
-        request_body=UserSignUpSerializer,
+        operation_description="""
+        **User Sign-Up Endpoint**  
+
+        - Accepts an **empty request body**.  
+        - Automatically creates a new user and generates a unique **seed**.  
+        - Returns the generated seed.  
+        """,
+        request_body=None,
         responses={
-            201: 'User created successfully.',
-            400: 'Bad request. Invalid data provided.',
-        }
+            201: "User created successfully. Returns generated seed.",
+            400: "Bad request. Something went wrong.",
+        },
     )
     def post(self, request, *args, **kwargs):
         return super().post(request, *args, **kwargs)

@@ -1,4 +1,5 @@
-from rest_framework import generics, filters
+from rest_framework import generics, filters, serializers
+from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -6,45 +7,23 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from NeuroDrive.models import SharedAccess, File
 from NeuroDrive.models.directory import Directory
 from NeuroDrive.serializers.file import FileSerializer
+from NeuroDrive.serializers.file_upload_serializer import FileUploadSerializer
 from NeuroDrive.serializers.directory import DirectorySerializer
 
 from NeuroDrive.permissions import (
     IsDirectoryOwner,
     IsOwnerOrSharedDirectory,
 )
+
+from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 
 
-
 class DirectoryListCreateView(generics.ListCreateAPIView):
-    """
-    **API Endpoint: Directory List & Create**
-    - **GET**: Retrieves a list of directories owned or shared with the user.
-    - **POST**: Creates a new directory.
-    """
 
     serializer_class = DirectorySerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["name", "files__name", "files__directory__name"]
-
-    @swagger_auto_schema(
-        operation_description="**This endpoint is used to retrieve directories that:**\n\n"
-        "- Are owned by the authenticated user\n"
-        "- Are shared with the authenticated user",
-        responses={200: DirectorySerializer(many=True)},
-    )
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    @swagger_auto_schema(
-        operation_description="**This endpoint is used to create a new directory with the following data:**\n\n"
-        "- `name`: Name of the directory\n"
-        "- `parent`: (Optional) Parent directory ID\n",
-        request_body=DirectorySerializer,
-        responses={201: DirectorySerializer()},
-    )
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
 
     def get_queryset(self):
         return (
@@ -52,38 +31,44 @@ class DirectoryListCreateView(generics.ListCreateAPIView):
             | Directory.objects.filter(shared_with=self.request.user)
         ).order_by("-created_at")
 
-
-class DirectoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
-    """
-    - **PATCH**: Update directory details.
-  
-    """
-
-    serializer_class = DirectorySerializer
-
     @swagger_auto_schema(
-        operation_description="This endpoint is used to *retrieve* the details of a specific directory by ID.",
-        responses={200: DirectorySerializer()},
+        operation_description="""
+        **Retrieve Directories**
+        
+        This endpoint retrieves all directories that:
+        - Are **owned** by the authenticated user.
+        
+        **Response:**
+        - A list of directories with their details.
+        """,
+        responses={200: DirectorySerializer(many=True)},
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="**This endpoint is used to *update* directory details with the following fields:**\n\n"
-        "- `name`: (Optional) New name of the directory\n"
-        "- `parent`: (Optional) Update parent directory ID\n",
-        request_body=DirectorySerializer,
-        responses={200: DirectorySerializer()},
-    )
-    def put(self, request, *args, **kwargs):
-        return super().put(request, *args, **kwargs)
+        operation_description="""
+        **Create a New Directory**
+        
+        Allows the user to create a new directory.
 
-    @swagger_auto_schema(
-        operation_description="**This endpoint is used to *delete* a directory (except the main directory).**",
-        responses={204: "Directory deleted successfully"},
+        **Required Fields:**
+        - `name` (string) - Name of the new directory.\n
+        - `parent` (optional) - ID of the parent directory.
+
+        **Response:**
+        - Returns the newly created directory details.
+        """,
+        request_body=DirectorySerializer,
+        responses={201: DirectorySerializer()},
     )
-    def delete(self, request, *args, **kwargs):
-        return super().delete(request, *args, **kwargs)
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
+
+class DirectoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+
+    serializer_class = DirectorySerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -107,46 +92,77 @@ class DirectoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         if not instance.name == "main":
             instance.delete()
 
-
-class DirectoryFileListCreateView(generics.ListCreateAPIView):
-    """
-    **API Endpoint: Directory Files List & Create**
-    - **GET**: Retrieve files in a directory.
-    - **POST**: Upload a new file to the directory.
-    """
-
-    search_fields = ["name"]
-    filterset_fields = ["is_starred"]
-    serializer_class = FileSerializer
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
-    parser_classes = (MultiPartParser, FormParser)  # Allow file uploads
-
-    def get_permissions(self):
-        """
-        Instantiates and returns the list of permissions that this view requires.
-        """
-        if self.request.method == "POST":
-            return [IsDirectoryOwner()]
-        return [IsOwnerOrSharedDirectory()]
-
     @swagger_auto_schema(
-        operation_description="**This endpoint is used to *retrieve* files in a directory.**\n\n"
-        "- If the directory ID is `shared`, shared files will be displayed.",
-        responses={200: FileSerializer(many=True)},
+        operation_description="""
+        **Retrieve Directory Details**
+        
+        - Fetches details of a specific directory.
+        - The user must  **own the directory** .
+        """,
+        responses={200: DirectorySerializer()},
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="**This endpoint is used to *upload* a new file to a directory with the following fields:**\n\n"
+        operation_description="""
+        **Update Directory Details**
+        
+        - Allows updating the **name** or **parent directory**.
+        - The user must be the **owner** of the directory.
 
-        "- `directory`: Directory ID where file is being uploaded\n"
-        "- `file`: The actual file to upload (supports images, PDFs, etc.)",
-        request_body=FileSerializer,
-        responses={201: FileSerializer()},
+        **Allowed Fields:**
+        - `name` (string) - New name of the directory.\n
+        - `parent` (string) - ID of the new parent directory (optional).
+        """,
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                "name": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="New directory name"
+                ),
+                "parent": openapi.Schema(
+                    type=openapi.TYPE_STRING,
+                    description="Parent directory ID (optional)",
+                ),
+            },
+        ),
+        responses={200: DirectorySerializer()},
     )
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+    def put(self, request, *args, **kwargs):
+        return super().put(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="""
+        **Delete a Directory**
+        
+        - Only the **owner** of the directory can delete it.
+        """,
+        responses={204: "Directory deleted successfully"},
+    )
+    def delete(self, request, *args, **kwargs):
+        return super().delete(request, *args, **kwargs)
+
+
+class DirectoryFileListCreateView(generics.ListCreateAPIView):
+    """
+    API for listing files in a directory and uploading new files.
+    """
+
+    search_fields = ["name"]
+    filterset_fields = ["is_starred"]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    parser_classes = (MultiPartParser, FormParser)
+
+    def get_permissions(self):
+        if self.request.method == "POST":
+            return [IsDirectoryOwner()]
+        return [IsOwnerOrSharedDirectory()]
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return FileUploadSerializer
+        return FileSerializer
 
     def get_queryset(self):
         directory_id = self.kwargs.get("directory_id") or self.kwargs.get("pk")
@@ -160,15 +176,61 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
         return self.request.directory.files.all().order_by("-created_at")
 
     def perform_create(self, serializer):
-        """
-        Handle file upload to the directory.
-        """
         directory_id = self.kwargs.get("directory_id")
+
         if not directory_id:
-            raise PermissionDenied("Directory ID is required for file upload.")
+            raise serializers.ValidationError(
+                {"directory_id": "Directory ID is required."}
+            )
+
         try:
             directory = Directory.objects.get(id=directory_id)
         except Directory.DoesNotExist:
-            raise PermissionDenied("The specified directory does not exist.")
+            raise serializers.ValidationError({"directory_id": "Invalid directory ID"})
 
         serializer.save(directory=directory)
+
+    @swagger_auto_schema(
+        operation_description="""
+        **List Files in a Directory**
+        
+        Retrieves all files present in a specified directory.
+        
+        **Required Parameters:**
+        - `directory_id` (path parameter) - ID of the directory.\n
+        - if `shared` is passed as directory ID it will return all shared files.
+        
+        **Response:**
+        - Returns a list of files with their details.
+        """,
+        responses={200: FileSerializer(many=True)},
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @swagger_auto_schema(
+        operation_description="""
+        **Upload a File to a Directory**
+        
+        Allows users to upload a file into a specified directory.
+        
+        **Required Parameters:**
+        - `file` (form-data) - The file to be uploaded (pdf,img etc).\n
+        - `directory_id` (path parameter) - ID of the directory where the file will be uploaded.
+        
+        **Response:**
+        - Returns the uploaded file details.
+        """,
+        request_body=FileUploadSerializer,
+        responses={201: FileSerializer()},
+    )
+    def post(self, request, *args, **kwargs):
+        directory_id = self.kwargs.get("directory_id")
+        serializer = FileUploadSerializer(
+            data=request.data,
+            context={"request": request, "directory_id": directory_id},
+        )
+        if serializer.is_valid():
+            file_instance = serializer.save()
+            return Response(FileSerializer(file_instance).data, status=201)
+        return Response(serializer.errors, status=400)
