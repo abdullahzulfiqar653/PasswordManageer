@@ -10,7 +10,7 @@ import requests
 class FileDownloadAPIView(generics.CreateAPIView):
     serializer_class = FileDownloadSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -37,7 +37,7 @@ class FileDownloadAPIView(generics.CreateAPIView):
                     {"error": str(e)}, status=response.status_code if response else 400
                 )
         return Response(serializer.errors, status=400)
-    
+
     @swagger_auto_schema(
         operation_summary="Download File",
         operation_description="""

@@ -7,12 +7,10 @@ from NeuroDrive.serializers.file import FileSerializer
 class ChildDirectorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Directory
-        fields = ["id", "name", "files", "shared_with", "parent"]
-        read_only_fields = ["shared_with"]
+        fields = ["id", "name", "parent"]
 
 
 class DirectorySerializer(serializers.ModelSerializer):
-    files = FileSerializer(many=True, read_only=True)
     children = ChildDirectorySerializer(many=True, read_only=True)
     parent = serializers.PrimaryKeyRelatedField(
         queryset=Directory.objects.all(), required=False, allow_null=True
@@ -20,8 +18,8 @@ class DirectorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Directory
-        fields = ["id", "name", "files", "shared_with", "children", "parent"]
-        read_only_fields = ["shared_with", "children"]
+        fields = ["id", "name", "files", "children", "parent"]
+        read_only_fields = ["children"]
         depth = 2
 
     def __init__(self, *args, **kwargs):
