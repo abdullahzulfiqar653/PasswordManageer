@@ -21,19 +21,19 @@ class UserProfileRetrieveUpdateView(generics.RetrieveUpdateAPIView):
 
         The following attributes will be returned when fetching the user profile:  
 
-        - **ID:** *(string, read-only)*  
+        - **ID:**   
         Unique identifier of the user profile.  
 
-        - **Image:** *(string, read-only, URI)*  
+        - **Image:**  
         URL of the user's profile image.  
 
-        - **Address:** *(string, nullable)*  
+        - **Address:**  
         User's address (can be empty).  
 
-        - **Features Data:** *(string, read-only)*  
+        - **Features Data:** 
         Additional profile-related information.  
 
-        - **URL:** *(string, read-only)*  
+        - **URL:**  
         Direct link to the user's profile.  
         """,
         responses={
@@ -46,7 +46,14 @@ class UserProfileRetrieveUpdateView(generics.RetrieveUpdateAPIView):
         return super().get(request, *args, **kwargs)
 
     @swagger_auto_schema(
-        operation_description="**Update** user profile attributes.",
+         operation_description="""
+                **Update User Profile**  
+
+                Users can update the following attribute:  
+
+                - **Image:** *(file, optional)*  
+                Upload a new profile image. The image will be stored on S3, and its URL will be generated.  
+                """,
         request_body=UserProfileSerializer,
         responses={
             200: "Profile updated successfully.",

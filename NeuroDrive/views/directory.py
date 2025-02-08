@@ -52,7 +52,7 @@ class DirectoryListCreateView(generics.ListCreateAPIView):
         Allows the user to create a new directory.
 
         **Required Fields:**
-        - `name` (string) - Name of the new directory.\n
+        - `name` (required) - Name of the new directory.\n
         - `parent` (optional) - ID of the parent directory.
 
         **Response:**
@@ -111,8 +111,8 @@ class DirectoryRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         - The user must be the **owner** of the directory.
 
         **Allowed Fields:**
-        - `name` (string) - New name of the directory.\n
-        - `parent` (string) - ID of the new parent directory (optional).
+        - `name`  - New name of the directory.\n
+        - `parent`  - ID of the new parent directory (optional).
         """,
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
@@ -214,7 +214,7 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
         Allows users to upload a file into a specified directory.
 
         **Required Parameters:**
-        - `file` (form-data) - The file to be uploaded (pdf,img etc).\n
+        - `file` (required) - The file to be uploaded (pdf,img etc).\n
         - `directory_id` (path parameter) - ID of the directory where the file will be uploaded.
 
         **Response:**

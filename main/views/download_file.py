@@ -10,16 +10,7 @@ import requests
 class FileDownloadAPIView(generics.CreateAPIView):
     serializer_class = FileDownloadSerializer
     permission_classes = [IsAuthenticated]
-
-    @swagger_auto_schema(
-        operation_description="Download a file by providing a URL.",
-        request_body=FileDownloadSerializer,
-        responses={
-            200: "File successfully downloaded.",
-            400: "Invalid request.",
-            401: "Unauthorized.",
-        },
-    )
+    
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -46,3 +37,22 @@ class FileDownloadAPIView(generics.CreateAPIView):
                     {"error": str(e)}, status=response.status_code if response else 400
                 )
         return Response(serializer.errors, status=400)
+    
+    @swagger_auto_schema(
+        operation_summary="Download File",
+        operation_description="""
+        Allows authenticated users to download a file from a given URL.
+        
+        - **URL (required):** The direct URL to the file to be downloaded.
+        
+        - **Returns:** A downloadable file response.
+        """,
+        request_body=FileDownloadSerializer,
+        responses={
+            200: "File successfully downloaded.",
+            400: "Invalid request. The URL may be incorrect or inaccessible.",
+            401: "Unauthorized. User must be authenticated.",
+        },
+    )
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
