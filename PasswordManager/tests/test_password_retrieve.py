@@ -2,33 +2,9 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from PasswordManager.models.password import Password
 from django.contrib.auth.models import User
-from rest_framework.test import APIClient
 from PasswordManager.models.folder import Folder
+from .customclient import CustomTestClient
 
-
-
-
-
-class CustomTestClient(APIClient):
-    def get(self, path, **extra):
-        if "HTTP_HOST" not in extra:
-            extra["HTTP_HOST"] = "pm:8000"
-        return super().get(path, **extra)
-
-    def post(self, path, data=None, **extra):
-        if "HTTP_HOST" not in extra:
-            extra["HTTP_HOST"] = "pm:8000"
-        return super().post(path, data, **extra)
-
-    def put(self, path, data=None, **extra):
-        if "HTTP_HOST" not in extra:
-            extra["HTTP_HOST"] = "pm:8000"
-        return super().put(path, data, **extra)
-
-    def delete(self, path, **extra):
-        if "HTTP_HOST" not in extra:
-            extra["HTTP_HOST"] = "pm:8000"
-        return super().delete(path, **extra)
 
 
 class PasswordRetrieveViewTest(APITestCase):
