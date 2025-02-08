@@ -1,13 +1,12 @@
-from rest_framework.response import Response
-from rest_framework import generics, filters, serializers
+from rest_framework import generics, filters
 from rest_framework.parsers import MultiPartParser, FormParser
 from django_filters.rest_framework import DjangoFilterBackend
 
 from NeuroDrive.models import SharedAccess, File
 from NeuroDrive.models.directory import Directory
 from NeuroDrive.serializers.file import FileSerializer
-from NeuroDrive.serializers.file_upload_serializer import FileUploadSerializer
 from NeuroDrive.serializers.directory import DirectorySerializer
+from NeuroDrive.serializers.file_upload_serializer import FileFakeSerializer
 
 from NeuroDrive.permissions import (
     IsDirectoryOwner,
@@ -150,18 +149,14 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
 
     search_fields = ["name"]
     filterset_fields = ["is_starred"]
-    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    serializer_class = FileSerializer
     parser_classes = (MultiPartParser, FormParser)
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
 
     def get_permissions(self):
         if self.request.method == "POST":
             return [IsDirectoryOwner()]
         return [IsOwnerOrSharedDirectory()]
-
-    def get_serializer_class(self):
-        if self.request.method == "POST":
-            return FileUploadSerializer
-        return FileSerializer
 
     def get_queryset(self):
         directory_id = self.kwargs.get("directory_id") or self.kwargs.get("pk")
@@ -173,21 +168,6 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
                 )
             )
         return self.request.directory.files.all().order_by("-created_at")
-
-    def perform_create(self, serializer):
-        directory_id = self.kwargs.get("directory_id")
-
-        if not directory_id:
-            raise serializers.ValidationError(
-                {"directory_id": "Directory ID is required."}
-            )
-
-        try:
-            directory = Directory.objects.get(id=directory_id)
-        except Directory.DoesNotExist:
-            raise serializers.ValidationError({"directory_id": "Invalid directory ID"})
-
-        serializer.save(directory=directory)
 
     @swagger_auto_schema(
         operation_description="""
@@ -220,16 +200,8 @@ class DirectoryFileListCreateView(generics.ListCreateAPIView):
         **Response:**
         - Returns the uploaded file details.
         """,
-        request_body=FileUploadSerializer,
+        request_body=FileFakeSerializer,
         responses={201: FileSerializer()},
     )
     def post(self, request, *args, **kwargs):
-        directory_id = self.kwargs.get("directory_id")
-        serializer = FileUploadSerializer(
-            data=request.data,
-            context={"request": request, "directory_id": directory_id},
-        )
-        if serializer.is_valid():
-            file_instance = serializer.save()
-            return Response(FileSerializer(file_instance).data, status=201)
-        return Response(serializer.errors, status=400)
+        return super().post(request, *args, **kwargs)
