@@ -8,6 +8,7 @@ from main.views import (
     UserSignInView,
     UserSignUpView,
     UserProfileRetrieveUpdateView,
+    RefreshTokenAPIView,
 )
 from NeuroDrive.views import (
     DirectoryFileListCreateView,
@@ -34,6 +35,7 @@ urlpatterns = [
         UserProfileRetrieveUpdateView.as_view(),
         name="user-profile-retrieve-update-delete",
     ),
+    path("user/refresh-token/", RefreshTokenAPIView.as_view(), name="refresh-token"),
     # =====================================================
     # Media
     # =====================================================

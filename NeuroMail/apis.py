@@ -22,6 +22,7 @@ from main.views import (
     UserSignInView,
     UserSignUpView,
     UserProfileRetrieveUpdateView,
+    RefreshTokenAPIView,
 )
 
 
@@ -41,6 +42,7 @@ urlpatterns = [
         UserProfileRetrieveUpdateView.as_view(),
         name="user-profile-retrieve-update-delete",
     ),
+    path("user/refresh-token/", RefreshTokenAPIView.as_view(), name="refresh-token"),
     # =====================================================
     # MailBox
     # =====================================================

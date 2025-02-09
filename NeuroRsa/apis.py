@@ -14,6 +14,7 @@ from NeuroRsa.views import (
 from main.views import (
     UserSignInView,
     UserSignUpView,
+    RefreshTokenAPIView,
 )
 
 urlpatterns = [
@@ -68,4 +69,5 @@ urlpatterns = [
         UserSignUpView.as_view(),
         name="generate-pass-phrase",
     ),
+    path("user/refresh-token/", RefreshTokenAPIView.as_view(), name="refresh-token"),
 ]

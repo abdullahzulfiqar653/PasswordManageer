@@ -23,4 +23,10 @@ class UserSignInView(generics.CreateAPIView):
         },
     )
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        response = super().post(request, *args, **kwargs)
+        refresh_token = response.data.pop("refresh", None)
+        if refresh_token:
+            response.set_cookie(
+                "neuro_refresh_token", refresh_token, httponly=True, secure=True
+            )
+        return response
