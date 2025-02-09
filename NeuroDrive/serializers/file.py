@@ -59,6 +59,12 @@ class FileSerializer(serializers.ModelSerializer):
         """Check if the file is password protected"""
         return bool(obj.password)
 
+    def validate_user_address(self, value):
+        if self.instance:
+            if not User.objects.filter(profile__address=value).exists():
+                raise serializers.ValidationError({"detail": "User address not found."})
+        return value
+
     def validate(self, data):
         """
         Ensure that the combination of 'owner', 'name', and 'directory' is unique.
@@ -114,14 +120,14 @@ class FileSerializer(serializers.ModelSerializer):
 
         if is_remove_password:
             if not password:
+                raise serializers.ValidationError({"password": ["Password required."]})
+            if not instance.password:
                 raise serializers.ValidationError(
-                    "Current password is required to remove password."
+                    {"password": ["File is not password protected."]}
                 )
-            if instance.password is None:
-                raise serializers.ValidationError("No password set for this file.")
 
             if not check_password(password, instance.password):
-                raise serializers.ValidationError("Incorrect password.")
+                raise serializers.ValidationError({"password": ["Incorrect password."]})
 
             instance.password = None
 
@@ -143,14 +149,8 @@ class FileSerializer(serializers.ModelSerializer):
             validated_data["content_type"] = content_type or "application/octet-stream"
 
         if is_giving_permission and user_address:
-            try:
-                user_to_share_with = User.objects.get(profile__address=user_address)
-
-                SharedAccess.objects.create(user=user_to_share_with, item=instance)
-            except User.DoesNotExist:
-                raise serializers.ValidationError(
-                    {"detail": f"User with address {user_address} not found."}
-                )
+            user_to_share_with = User.objects.get(profile__address=user_address)
+            SharedAccess.objects.create(user=user_to_share_with, item=instance)
 
         if hasattr(request, "directory") and hasattr(request, "file"):
             validated_data["directory"] = request.directory
