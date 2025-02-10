@@ -90,15 +90,11 @@ class FileSerializer(serializers.ModelSerializer):
 
     def get_unique_filename(self, name):
         request = self.context.get("request")
+        user = request.user
         directory = request.directory
-        owner = request.user
-
         base, ext = os.path.splitext(name)
-        existing_files = File.objects.filter(
-            directory=directory, owner=owner, name=name
-        )
 
-        if existing_files.exists():
+        if user.files.filter(directory=directory, name=name).exists():
             random_str = secrets.token_hex(4)
             return f"{base}_{random_str}{ext}"
 
@@ -124,9 +120,6 @@ class FileSerializer(serializers.ModelSerializer):
         validated_data["content_type"] = content_type or "application/octet-stream"
         validated_data["metadata"] = get_file_metadata(file)
         validated_data["metadata"]["file_name"] = name
-
-        if validated_data.get("is_starred"):
-            del validated_data["is_starred"]
 
         return super().create(validated_data)
 
