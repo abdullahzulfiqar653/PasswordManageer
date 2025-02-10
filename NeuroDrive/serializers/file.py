@@ -160,7 +160,6 @@ class FileSerializer(serializers.ModelSerializer):
         file = validated_data.pop("file", None)
         if file:
             name = validated_data.get("name", file.name).replace(" ", "_")
-            name = self.get_unique_filename(name)
             content_type, _ = mimetypes.guess_type(file.name)
             s3_key = f"neurodrive/{request.directory.id}/{name}"
             s3_url = s3_client.upload_file(file, s3_key)
@@ -175,4 +174,7 @@ class FileSerializer(serializers.ModelSerializer):
         if hasattr(request, "directory") and hasattr(request, "file"):
             validated_data["directory"] = request.directory
 
+        if validated_data.get("name"):
+            name = self.get_unique_filename(validated_data["name"])
+            validated_data["name"] = name
         return super().update(instance, validated_data)
