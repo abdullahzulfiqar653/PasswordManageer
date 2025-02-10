@@ -1,3 +1,5 @@
+import os
+import secrets
 import mimetypes
 
 from rest_framework import serializers
@@ -9,7 +11,6 @@ from main.services.s3 import S3Service
 from NeuroDrive.models.file import File
 from NeuroDrive.models.shared_access import SharedAccess
 from NeuroDrive.serializers.shared_access import SharedAccessSerializer
-
 
 from main.utils.utils import get_file_metadata
 
@@ -87,6 +88,22 @@ class FileSerializer(serializers.ModelSerializer):
             pass
         return data
 
+    def get_unique_filename(self, name):
+        request = self.context.get("request")
+        directory = request.directory
+        owner = request.user
+
+        base, ext = os.path.splitext(name)
+        existing_files = File.objects.filter(
+            directory=directory, owner=owner, name=name
+        )
+
+        if existing_files.exists():
+            random_str = secrets.token_hex(4)
+            return f"{base}_{random_str}{ext}"
+
+        return name
+
     def create(self, validated_data):
         _ = validated_data.pop("is_starred", None)
         _ = validated_data.pop("is_remove_password", None)
@@ -95,6 +112,7 @@ class FileSerializer(serializers.ModelSerializer):
         file = validated_data.pop("file")
         request = self.context.get("request")
         name = validated_data.get("name", file.name).replace(" ", "_")
+        name = self.get_unique_filename(name)
         content_type, _ = mimetypes.guess_type(file.name)
         s3_key = f"neurodrive/{request.directory.id}/{name}"
         s3_url = s3_client.upload_file(file, s3_key)
@@ -105,6 +123,7 @@ class FileSerializer(serializers.ModelSerializer):
         validated_data["directory"] = request.directory
         validated_data["content_type"] = content_type or "application/octet-stream"
         validated_data["metadata"] = get_file_metadata(file)
+        validated_data["metadata"]["file_name"] = name
 
         if validated_data.get("is_starred"):
             del validated_data["is_starred"]
@@ -141,6 +160,7 @@ class FileSerializer(serializers.ModelSerializer):
         file = validated_data.pop("file", None)
         if file:
             name = validated_data.get("name", file.name).replace(" ", "_")
+            name = self.get_unique_filename(name)
             content_type, _ = mimetypes.guess_type(file.name)
             s3_key = f"neurodrive/{request.directory.id}/{name}"
             s3_url = s3_client.upload_file(file, s3_key)
