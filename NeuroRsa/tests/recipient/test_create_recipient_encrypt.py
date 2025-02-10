@@ -1,47 +1,47 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 from django.contrib.auth.models import User
-from ..CustomClient import CustomTestClient
+from main.customclient import CustomTestClient
 
 
 class RecipientTests(APITestCase):
 
     def setUp(self):
-     
-        self.user = User.objects.create_user(username='senderuser', password='testpassword')
 
-        self.client = CustomTestClient()
+        self.user = User.objects.create_user(
+            username="senderuser", password="testpassword"
+        )
+
+        self.client = CustomTestClient("rsa:8000")
 
         self.url_encrypt = "/api/recipients/encrypt-message/"
 
         self.client.force_authenticate(self.user)
         keypair_data = {
-            "name": "senderuser",          
-            "email": "senderuser@example.com",  
+            "name": "senderuser",
+            "email": "senderuser@example.com",
         }
-        keypair_response = self.client.post("/api/keypairs/", keypair_data, format="json")
-        
-        self.assertEqual(keypair_response.status_code, status.HTTP_201_CREATED) 
-        
+        keypair_response = self.client.post(
+            "/api/keypairs/", keypair_data, format="json"
+        )
 
-        public_key = keypair_response.data["public_key"]  
+        self.assertEqual(keypair_response.status_code, status.HTTP_201_CREATED)
 
-        self.recipient_data = {
-            "name": "Soha",
-            "public_key": public_key,  
-            "emoji": "🔒"
-        }
+        public_key = keypair_response.data["public_key"]
 
+        self.recipient_data = {"name": "Soha", "public_key": public_key, "emoji": "🔒"}
 
-        response = self.client.post("/api/recipients/", self.recipient_data, format="json")
+        response = self.client.post(
+            "/api/recipients/", self.recipient_data, format="json"
+        )
 
-        self.recipient_id=response.data["id"]
+        self.recipient_id = response.data["id"]
 
     def test_encrypt_message_success(self):
         message = "This is a secret message."
         data = {
             "message": message,
-            "recipient_ids": [self.recipient_id]  # Add the recipient's ID
+            "recipient_ids": [self.recipient_id],  # Add the recipient's ID
         }
 
         response = self.client.post(self.url_encrypt, data, format="json")
@@ -52,7 +52,7 @@ class RecipientTests(APITestCase):
         message = "This is a secret message."
         data = {
             "message": message,
-            "recipient_ids": ["non_existing_id"]  # Invalid recipient ID
+            "recipient_ids": ["non_existing_id"],  # Invalid recipient ID
         }
 
         response = self.client.post(self.url_encrypt, data, format="json")
@@ -64,15 +64,12 @@ class RecipientTests(APITestCase):
         self.assertIn("recipient_ids", response.data)
         self.assertEqual(
             response.data["recipient_ids"][0],
-            'Invalid pk "non_existing_id" - object does not exist.'
+            'Invalid pk "non_existing_id" - object does not exist.',
         )
 
-
     def test_encrypt_message_missing_message(self):
-        
-        data = {
-            "recipient_ids": [self.recipient_id] 
-        }
+
+        data = {"recipient_ids": [self.recipient_id]}
 
         response = self.client.post(self.url_encrypt, data, format="json")
 
@@ -80,26 +77,19 @@ class RecipientTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
         # Optionally, check for a specific error message in the response
-        self.assertIn("message", response.data) 
-     
+        self.assertIn("message", response.data)
+
     def test_encrypt_message_unauthorized_user(self):
         self.client.logout()
         message = "This is a secret message."
-        data = {
-            "message": message,
-            "recipient_ids": [self.recipient_id]  
-        }
+        data = {"message": message, "recipient_ids": [self.recipient_id]}
         response = self.client.post(self.url_encrypt, data, format="json")
 
         # Assert Unauthorized (401)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    
 
     def test_encrypt_message_invalid_recipient_type(self):
-        data = {
-            "message": "Test message",
-            "recipient_ids": "invalid_string"  
-        }
+        data = {"message": "Test message", "recipient_ids": "invalid_string"}
         response = self.client.post(self.url_encrypt, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("recipient_ids", response.data)
