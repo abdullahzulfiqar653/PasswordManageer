@@ -118,7 +118,7 @@ class FileSerializer(serializers.ModelSerializer):
         validated_data["owner"] = request.user
         validated_data["directory"] = request.directory
         validated_data["content_type"] = content_type or "application/octet-stream"
-        validated_data["metadata"] = get_file_metadata(file)
+        validated_data["metadata"] = get_file_metadata(file,s3_url)
         validated_data["metadata"]["file_name"] = name
 
         return super().create(validated_data)
